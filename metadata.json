@@ -1,0 +1,5 @@
+{
+  "name": "SGS Extension",
+  "description": "A dark-mode extension for Softseguros to manage insurance claims, track financials, and visualize workflow progress.",
+  "requestFramePermissions": []
+}
