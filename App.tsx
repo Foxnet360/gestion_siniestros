@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ClaimsTable from './components/ClaimsTable';
 import ClaimDetail from './components/ClaimDetail';
 import Ingest from './components/Ingest';
 import Login from './components/Login';
-import { INITIAL_CLAIMS } from './constants';
 import { Claim, User } from './types';
+import { ClaimsProvider, useClaims } from './context/ClaimsContext';
 
-const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+const AppContent: React.FC = () => {
+  const {
+    currentUser,
+    setCurrentUser,
+    // claims, // Not needed directly if using filteredClaims
+    updateClaim,
+    filteredClaims
+  } = useClaims();
+
   const [currentView, setCurrentView] = useState('dashboard');
-  const [claims, setClaims] = useState<Claim[]>(INITIAL_CLAIMS);
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
   const [showToast, setShowToast] = useState(false);
 
-  // Simulate data persistence logic would go here
-
   const handleUpdateClaim = (updatedClaim: Claim) => {
-    setClaims(prev => prev.map(c => c.id_softseguros === updatedClaim.id_softseguros ? updatedClaim : c));
+    updateClaim(updatedClaim);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
@@ -37,11 +41,13 @@ const App: React.FC = () => {
   }
 
   const renderContent = () => {
-    switch(currentView) {
+    switch (currentView) {
       case 'dashboard':
-        return <Dashboard claims={claims} onSelectClaim={setSelectedClaim} />;
+        // Use filteredClaims for Dashboard to reflect global filters
+        return <Dashboard claims={filteredClaims} onSelectClaim={setSelectedClaim} />;
       case 'list':
-        return <ClaimsTable claims={claims} onSelectClaim={setSelectedClaim} />;
+        // Use filteredClaims for Table as well
+        return <ClaimsTable claims={filteredClaims} onSelectClaim={setSelectedClaim} />;
       case 'ingest':
         return <Ingest />;
       default:
@@ -55,33 +61,33 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500/30">
-      
+
       {/* Sidebar */}
-      <Sidebar 
-        currentView={currentView} 
-        onChangeView={setCurrentView} 
+      <Sidebar
+        currentView={currentView}
+        onChangeView={setCurrentView}
         currentUser={currentUser}
         onLogout={handleLogout}
       />
 
       {/* Main Content */}
       <main className="flex-1 ml-64 p-8 transition-all">
-        {/* Top Bar (Mock) */}
+        {/* Top Bar */}
         <div className="flex justify-between items-center mb-8">
-           <div>
+          <div>
             <h2 className="text-2xl font-bold text-white tracking-tight">
-              {currentView === 'dashboard' ? 'Tablero de Control' : 
-               currentView === 'list' ? 'Gestión de Casos' : 
-               currentView === 'ingest' ? 'Importación Masiva' : 'Reportes'}
+              {currentView === 'dashboard' ? 'Tablero de Control' :
+                currentView === 'list' ? 'Gestión de Casos' :
+                  currentView === 'ingest' ? 'Importación Masiva' : 'Reportes'}
             </h2>
             <p className="text-slate-400 text-sm mt-1">Bienvenido de nuevo, {currentUser.name.split(' ')[0]}</p>
-           </div>
-           <div className="flex items-center space-x-4">
-             <div className="text-right hidden md:block">
-               <p className="text-xs text-slate-500 font-mono">Última sincronización</p>
-               <p className="text-xs text-emerald-400 font-bold">Hace 5 minutos</p>
-             </div>
-           </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="text-right hidden md:block">
+              <p className="text-xs text-slate-500 font-mono">Última sincronización</p>
+              <p className="text-xs text-emerald-400 font-bold">Hace 5 minutos</p>
+            </div>
+          </div>
         </div>
 
         {renderContent()}
@@ -89,9 +95,9 @@ const App: React.FC = () => {
 
       {/* Modals */}
       {selectedClaim && (
-        <ClaimDetail 
-          claim={selectedClaim} 
-          onClose={() => setSelectedClaim(null)} 
+        <ClaimDetail
+          claim={selectedClaim}
+          onClose={() => setSelectedClaim(null)}
           onUpdate={handleUpdateClaim}
         />
       )}
@@ -104,6 +110,14 @@ const App: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ClaimsProvider>
+      <AppContent />
+    </ClaimsProvider>
   );
 };
 

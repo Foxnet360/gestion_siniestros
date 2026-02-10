@@ -1,136 +1,110 @@
 import React, { useState } from 'react';
-import { UploadCloud, FileSpreadsheet, CheckCircle, AlertTriangle } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import { useClaims } from '../context/ClaimsContext';
+import { processFiles } from '../services/excelParser';
 
 const Ingest: React.FC = () => {
-  const [dragActive, setDragActive] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
+  const { setClaims } = useClaims();
+  const [softFile, setSoftFile] = useState<File | null>(null);
+  const [gestionFile, setGestionFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [stats, setStats] = useState<{ total: number } | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (f: File | null) => void) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
     }
   };
 
-  const processFile = () => {
-    if (!file) return;
+  const processData = async () => {
+    if (!softFile || !gestionFile) return;
     setStatus('processing');
-    // Simulate Backend Delay
-    setTimeout(() => {
+    try {
+      const result = await processFiles(softFile, gestionFile);
+      setClaims(result.claims);
+      setStats({ total: result.stats.totalRows });
       setStatus('success');
-    }, 2000);
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+      setErrorMsg('Error al procesar los archivos. Verifique el formato.');
+    }
   };
 
+  const FileDrop = ({ label, file, setFile, accept }: { label: string, file: File | null, setFile: (f: File | null) => void, accept: string }) => (
+    <div className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 ${file ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800/30'}`}>
+      <input
+        type="file"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        onChange={(e) => handleFileChange(e, setFile)}
+        accept={accept}
+        disabled={status === 'processing'}
+      />
+      <div className="flex flex-col items-center pointer-events-none">
+        {file ? (
+          <>
+            <FileSpreadsheet className="w-8 h-8 text-emerald-400 mb-2" />
+            <p className="text-sm font-medium text-slate-200">{file.name}</p>
+            <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(0)} KB</p>
+          </>
+        ) : (
+          <>
+            <UploadCloud className="w-8 h-8 text-slate-500 mb-2" />
+            <p className="text-sm font-medium text-slate-300">{label}</p>
+            <p className="text-xs text-slate-500">Arrastre o clic aquí</p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="max-w-2xl mx-auto mt-10">
+    <div className="max-w-4xl mx-auto mt-10">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Ingesta de Siniestros (Excel)</h2>
-        <p className="text-slate-400">Sube el archivo <code className="bg-emerald-900/30 text-emerald-400 px-1 py-0.5 rounded">Siniestros.xlsx</code> generado por Softseguros.</p>
+        <h2 className="text-2xl font-bold text-white mb-2">Ingesta y Unificación</h2>
+        <p className="text-slate-400 text-sm">Cargue los archivos de <span className="text-blue-400">Softseguros</span> y <span className="text-amber-400">Gestión Interna</span> para sincronizar.</p>
       </div>
 
-      <div 
-        className={`relative border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300
-          ${dragActive ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800/30'}
-          ${status === 'success' ? 'border-emerald-500/50 bg-emerald-900/10' : ''}
-        `}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <input 
-          type="file" 
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-          onChange={handleChange}
-          accept=".xlsx, .xls"
-          disabled={status !== 'idle'}
-        />
-
-        {status === 'idle' && !file && (
-          <div className="flex flex-col items-center pointer-events-none">
-            <div className="bg-slate-800 p-4 rounded-full mb-4">
-              <UploadCloud className="w-10 h-10 text-emerald-400" />
-            </div>
-            <p className="text-lg font-medium text-slate-200 mb-2">Arrastra tu archivo Excel aquí</p>
-            <p className="text-sm text-slate-500">Soporta formatos .xlsx y .xls</p>
-          </div>
-        )}
-
-        {status === 'idle' && file && (
-          <div className="flex flex-col items-center pointer-events-none">
-            <div className="bg-emerald-900/30 p-4 rounded-full mb-4">
-              <FileSpreadsheet className="w-10 h-10 text-emerald-400" />
-            </div>
-            <p className="text-lg font-medium text-slate-200 mb-1">{file.name}</p>
-            <p className="text-sm text-slate-500 mb-6">{(file.size / 1024).toFixed(2)} KB</p>
-          </div>
-        )}
-
-        {status === 'processing' && (
-           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-            <p className="text-slate-200 font-medium">Leyendo filas de Excel...</p>
-            <p className="text-sm text-slate-500 mt-2">Mapeando columnas...</p>
-           </div>
-        )}
-
-        {status === 'success' && (
-           <div className="flex flex-col items-center">
-            <div className="bg-emerald-900/30 p-4 rounded-full mb-4">
-              <CheckCircle className="w-10 h-10 text-emerald-400" />
-            </div>
-            <p className="text-lg font-bold text-white mb-1">¡Carga Completada!</p>
-            <p className="text-sm text-slate-400 mb-4">Se procesaron correctamente las hojas de cálculo.</p>
-            <button 
-              onClick={() => { setFile(null); setStatus('idle'); }}
-              className="z-10 relative bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-            >
-              Subir otro archivo
-            </button>
-           </div>
-        )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <FileDrop label="Archivo Softseguros (CSV/Excel)" file={softFile} setFile={setSoftFile} accept=".csv,.xlsx,.xls" />
+        <FileDrop label="Archivo Gestión 2026 (CSV/Excel)" file={gestionFile} setFile={setGestionFile} accept=".csv,.xlsx,.xls" />
       </div>
 
-      {status === 'idle' && file && (
-        <div className="mt-6 flex justify-center">
-          <button 
-            onClick={processFile}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105"
+      <div className="flex justify-center mb-8">
+        {status === 'processing' ? (
+          <div className="flex items-center space-x-3 text-blue-400">
+            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            <span>Procesando y unificando datos...</span>
+          </div>
+        ) : status === 'success' ? (
+          <div className="bg-emerald-900/30 border border-emerald-900/50 p-4 rounded-lg flex items-center space-x-4 animate-fade-in-up">
+            <CheckCircle className="w-10 h-10 text-emerald-400" />
+            <div>
+              <h3 className="font-bold text-white">¡Sincronización Exitosa!</h3>
+              <p className="text-sm text-emerald-200/70">Se han procesado {stats?.total} registros correctamente.</p>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={processData}
+            disabled={!softFile || !gestionFile}
+            className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105
+                ${(!softFile || !gestionFile) ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'}
+             `}
           >
-            Procesar Excel
+            <span>Iniciar Sincronización</span>
+            <ArrowRight className="w-5 h-5" />
           </button>
+        )}
+      </div>
+
+      {status === 'error' && (
+        <div className="bg-rose-900/20 border border-rose-900/50 p-4 rounded-lg flex items-center space-x-3 text-rose-300 mx-auto max-w-md">
+          <AlertTriangle className="w-5 h-5" />
+          <span>{errorMsg}</span>
         </div>
       )}
-
-      <div className="mt-8 bg-amber-900/20 border border-amber-900/50 p-4 rounded-lg flex items-start space-x-3">
-        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-        <div>
-          <h4 className="text-sm font-bold text-amber-200">Nota Importante</h4>
-          <p className="text-xs text-amber-200/70 mt-1">
-            Asegúrese de que el archivo Excel no tenga celdas combinadas en el encabezado para garantizar una lectura correcta de la columna <code className="text-white">IDENTIFICADOR</code>.
-          </p>
-        </div>
-      </div>
     </div>
   );
 };

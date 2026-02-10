@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Table2, 
-  UploadCloud, 
+import {
+  LayoutDashboard,
+  Table2,
+  UploadCloud,
   FileBarChart,
   LogOut,
   ShieldAlert
@@ -20,9 +20,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, currentUse
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard (Escritorio)', icon: LayoutDashboard },
     { id: 'list', label: 'Listado Maestro', icon: Table2 },
-    { id: 'ingest', label: 'Ingesta Excel', icon: UploadCloud },
-    { id: 'reports', label: 'Reportes', icon: FileBarChart },
+    { id: 'ingest', label: 'Ingesta Excel', icon: UploadCloud, restricted: true },
+    { id: 'reports', label: 'Reportes', icon: FileBarChart, restricted: true },
   ];
+
+  const visibleItems = menuItems.filter(item => {
+    if (currentUser.role === 'ALIADO' && item.restricted) return false;
+    return true;
+  });
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20 transition-all duration-300">
@@ -37,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, currentUse
       </div>
 
       <nav className="flex-1 py-6 px-3 space-y-1">
-        {menuItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const active = currentView === item.id;
           return (
@@ -45,8 +50,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, currentUse
               key={item.id}
               onClick={() => onChangeView(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group
-                ${active 
-                  ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' 
+                ${active
+                  ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
                 }`}
             >
@@ -67,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, currentUse
             <p className="text-[10px] text-slate-500 truncate uppercase tracking-wide">{currentUser.role}</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={onLogout}
           className="w-full flex items-center justify-center space-x-2 text-xs text-slate-500 hover:text-rose-400 transition-colors py-2"
         >

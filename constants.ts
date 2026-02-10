@@ -65,6 +65,14 @@ export const MOCK_USERS: User[] = [
     email: 'admin@softseguros.com',
     role: 'ADMIN',
     initials: 'MG'
+  },
+  {
+    id: 'u3',
+    name: 'Seguros Bolivar',
+    email: 'contacto@bolivar.com',
+    role: 'ALIADO',
+    initials: 'SB',
+    aliadoId: 'Seguros Bolívar'
   }
 ];
 
@@ -78,11 +86,12 @@ export const INITIAL_CLAIMS: Claim[] = [
     usuario_registro: 'admin_ss',
     ultimo_seguimiento_raw: 'Documentación recibida el 12/05/2023',
     placa_bien: 'WXY-123',
-    
+
     ramo: 'Automóviles',
     aseguradora: 'Seguros Bolívar',
     vendedor: 'Carlos Pérez',
     tecnico_asignado: 'Gonzalo Duque',
+    aliado_origen: 'Seguros Bolívar',
 
     id_interno: 'EXT-1',
     estado_interno: 'ESTUDIO TÉCNICO CORREDORES',
@@ -125,7 +134,7 @@ export const INITIAL_CLAIMS: Claim[] = [
     id_interno: 'EXT-2',
     estado_interno: 'DOCUMENTOS ADICIONALES',
     // STAGNANT CASE: Last change was 35 days ago
-    lastStateChangeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(), 
+    lastStateChangeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(),
     stateHistory: [],
 
     prioridad: Priority.MEDIA,

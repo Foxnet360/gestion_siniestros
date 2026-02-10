@@ -1,4 +1,4 @@
-export type InternalState = 
+export type InternalState =
   // FASE 1
   | 'AVISO SINIESTRO'
   | 'OBTENCIÓN SOPORTES'
@@ -41,7 +41,7 @@ export enum Priority {
   BAJA = 'Baja'
 }
 
-export type Role = 'ADMIN' | 'TECNICO';
+export type Role = 'ADMIN' | 'TECNICO' | 'ALIADO';
 
 export interface User {
   id: string;
@@ -49,6 +49,7 @@ export interface User {
   email: string;
   role: Role;
   initials: string;
+  aliadoId?: string; // Link to specific Ally organization
 }
 
 export interface TimelineEvent {
@@ -76,20 +77,21 @@ export interface Claim {
   estado_softseguros: string;
   usuario_registro: string;
   ultimo_seguimiento_raw: string;
-  placa_bien: string; 
+  placa_bien: string;
 
   // New Grouping Fields
   ramo: string;            // e.g., Autos, Vida, Hogar
   aseguradora: string;     // e.g., Allianz, Mapfre
   vendedor: string;        // Salesperson
   tecnico_asignado: string;// Technician handling the claim
+  aliado_origen?: string; // Organization that owns/referred the policy
 
   // Extension Data (Management)
   id_interno: string;
   estado_interno: InternalState;
   lastStateChangeDate: string; // Key for tracking time in current state
   stateHistory: StateHistoryEntry[]; // Log of previous states
-  
+
   prioridad: Priority;
   monto_reclamo: number;
   valor_deducible: number;
@@ -103,4 +105,14 @@ export interface KpiData {
   totalReclamado: number;
   tasaExito: number; // Percentage
   casosQuietos: number; // Count > 30 days
+}
+
+export interface FilterState {
+  searchTerm: string;
+  ramo: string[];
+  aseguradora: string[];
+  estado: string[];
+  tecnico: string[];
+  aliado: string[];
+  prescripcionRisk?: boolean; // Show only risk > 0
 }
