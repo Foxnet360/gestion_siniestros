@@ -5,6 +5,7 @@ import ClaimsTable from './components/ClaimsTable';
 import ClaimDetail from './components/ClaimDetail';
 import Ingest from './components/Ingest';
 import Login from './components/Login';
+import PrescriptionRiskPage from './components/PrescriptionRiskPage';
 import { Claim, User } from './types';
 import { ClaimsProvider, useClaims } from './context/ClaimsContext';
 
@@ -14,6 +15,7 @@ const AppContent: React.FC = () => {
     setCurrentUser,
     // claims, // Not needed directly if using filteredClaims
     updateClaim,
+    changeClaimState,
     filteredClaims
   } = useClaims();
 
@@ -44,12 +46,26 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case 'dashboard':
         // Use filteredClaims for Dashboard to reflect global filters
-        return <Dashboard claims={filteredClaims} onSelectClaim={setSelectedClaim} />;
+        return (
+          <Dashboard
+            claims={filteredClaims}
+            onSelectClaim={setSelectedClaim}
+            onChangeView={setCurrentView}
+          />
+        );
       case 'list':
         // Use filteredClaims for Table as well
         return <ClaimsTable claims={filteredClaims} onSelectClaim={setSelectedClaim} />;
       case 'ingest':
         return <Ingest />;
+      case 'prescription-risk':
+        return (
+          <PrescriptionRiskPage
+            claims={filteredClaims}
+            onSelectClaim={setSelectedClaim}
+            onBack={() => setCurrentView('dashboard')}
+          />
+        );
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[60vh] text-slate-500">
@@ -78,7 +94,8 @@ const AppContent: React.FC = () => {
             <h2 className="text-2xl font-bold text-white tracking-tight">
               {currentView === 'dashboard' ? 'Tablero de Control' :
                 currentView === 'list' ? 'Gestión de Casos' :
-                  currentView === 'ingest' ? 'Importación Masiva' : 'Reportes'}
+                  currentView === 'ingest' ? 'Importación Masiva' :
+                    currentView === 'prescription-risk' ? 'Riesgo de Prescripción' : 'Reportes'}
             </h2>
             <p className="text-slate-400 text-sm mt-1">Bienvenido de nuevo, {currentUser.name.split(' ')[0]}</p>
           </div>
@@ -99,6 +116,11 @@ const AppContent: React.FC = () => {
           claim={selectedClaim}
           onClose={() => setSelectedClaim(null)}
           onUpdate={handleUpdateClaim}
+          onChangeState={(newState) => {
+            if (selectedClaim && currentUser) {
+              changeClaimState(selectedClaim.id_softseguros, newState, currentUser.name);
+            }
+          }}
         />
       )}
 

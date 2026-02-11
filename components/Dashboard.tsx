@@ -11,9 +11,10 @@ import {
 interface DashboardProps {
   claims: Claim[];
   onSelectClaim: (claim: Claim) => void;
+  onChangeView: (view: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim }) => {
+const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim, onChangeView }) => {
   // KPI Calculation
   const kpis: KpiData = useMemo(() => {
     const totalReclamado = claims.reduce((acc, curr) => acc + (curr.estado_interno !== 'PAGADO' && curr.estado_interno !== 'FINALIZADO' ? curr.monto_reclamo : 0), 0);
@@ -182,7 +183,12 @@ const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim }) => {
             <h3 className="text-rose-400 font-bold mb-1 text-sm">Riesgo de Prescripción detectado</h3>
             <p className="text-xs text-rose-200/70 mb-2">Hay <span className="font-bold text-rose-100">{prescriptionRisks.length} casos</span> próximos a cumplir 2 años desde la fecha del siniestro.</p>
           </div>
-          <button className="text-xs text-rose-400 hover:text-rose-300 underline mt-1">Ver casos</button>
+          <button
+            onClick={() => onChangeView('prescription-risk')}
+            className="text-xs text-rose-400 hover:text-rose-300 underline mt-1"
+          >
+            Ver casos
+          </button>
         </div>
       )}
 

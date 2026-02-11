@@ -7,63 +7,37 @@ interface ClaimDetailProps {
   claim: Claim;
   onClose: () => void;
   onUpdate: (updatedClaim: Claim) => void;
+  onChangeState: (newState: InternalState) => void;
 }
 
-const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) => {
+const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate, onChangeState }) => {
   const [formData, setFormData] = useState<Claim>(claim);
   const [newNote, setNewNote] = useState('');
   const [daysInCurrentState, setDaysInCurrentState] = useState(0);
 
   // Calculate days in current state
   useEffect(() => {
-    if (formData.lastStateChangeDate) {
-      const start = new Date(formData.lastStateChangeDate).getTime();
+    if (claim.lastStateChangeDate) {
+      const start = new Date(claim.lastStateChangeDate).getTime();
       const now = new Date().getTime();
       const days = Math.floor((now - start) / (1000 * 60 * 60 * 24));
       setDaysInCurrentState(days);
     }
-  }, [formData.lastStateChangeDate]);
+  }, [claim.lastStateChangeDate]);
 
   const handleChange = (field: keyof Claim, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleStateChange = (newState: InternalState) => {
-    if (newState === formData.estado_interno) return;
+    if (newState === claim.estado_interno) return;
 
-    const now = new Date();
-    const oldState = formData.estado_interno;
-    
-    // Calculate duration of old state
-    const startDate = new Date(formData.lastStateChangeDate || formData.updatedAt);
-    const daysDuration = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    // Call parent/context to handle the state change logic globally and immediately
+    onChangeState(newState);
 
-    // Create history entry
-    const historyEntry: StateHistoryEntry = {
-      state: oldState,
-      startDate: startDate.toISOString(),
-      endDate: now.toISOString(),
-      daysDuration: daysDuration,
-      author: 'Usuario Actual' // Mock
-    };
-
-    // Add automatic timeline note
-    const systemNote = {
-      id: Date.now().toString(),
-      date: now.toISOString(),
-      author: 'Sistema',
-      text: `Cambio de estado: ${oldState} -> ${newState} (Duración en anterior: ${daysDuration} días)`,
-      isSystem: true
-    };
-
-    setFormData(prev => ({
-      ...prev,
-      estado_interno: newState,
-      lastStateChangeDate: now.toISOString(),
-      stateHistory: [historyEntry, ...(prev.stateHistory || [])],
-      timeline: [systemNote, ...prev.timeline],
-      updatedAt: now.toISOString()
-    }));
+    // Note: We don't update formData here because the props 'claim' will update 
+    // and trigger a re-render. Ideally, we should sync formData with new claim props 
+    // or separate them. For now, rely on prop display for state.
   };
 
   const handleAddNote = () => {
@@ -99,7 +73,7 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-slate-900 w-full max-w-7xl h-[90vh] rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden">
-        
+
         {/* Header */}
         <div className="h-16 border-b border-slate-700 flex items-center justify-between px-6 bg-slate-800/50">
           <div className="flex items-center space-x-4">
@@ -114,14 +88,14 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
             </div>
           </div>
           <div className="flex items-center space-x-3">
-             <button 
+            <button
               onClick={handleSave}
               className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             >
               <Save className="w-4 h-4" />
               <span>Guardar Cambios</span>
             </button>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
             >
@@ -132,14 +106,14 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
 
         {/* Content - 3 Columns */}
         <div className="flex-1 flex overflow-hidden">
-          
+
           {/* LEFT: Softseguros Read-Only */}
           <div className="w-1/4 bg-slate-900/50 border-r border-slate-800 p-6 overflow-y-auto">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-6 flex items-center">
               <img src="https://ui-avatars.com/api/?name=S+S&background=0f172a&color=64748b" className="w-4 h-4 mr-2 rounded" alt="SS" />
               Datos Softseguros
             </h3>
-            
+
             <div className="space-y-6">
               <div className="group">
                 <label className="text-xs text-slate-500 block mb-1">Póliza</label>
@@ -165,7 +139,7 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
 
               <div>
                 <label className="text-xs text-slate-500 block mb-1">Registrado Por</label>
-                 <div className="flex items-center text-slate-300">
+                <div className="flex items-center text-slate-300">
                   <User className="w-3 h-3 mr-2 text-slate-500" />
                   <span className="text-sm">{claim.usuario_registro}</span>
                 </div>
@@ -182,12 +156,12 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
 
           {/* CENTER: Management & Finance */}
           <div className="flex-1 p-8 bg-slate-900 overflow-y-auto">
-             <h3 className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-6">
+            <h3 className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-6">
               Gestión & Financiera
             </h3>
 
             <div className="grid grid-cols-2 gap-6 mb-8">
-               <div className="col-span-2 md:col-span-1">
+              <div className="col-span-2 md:col-span-1">
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-medium text-slate-300">Estado Interno</label>
                   <div className={`flex items-center text-xs font-bold px-2 py-0.5 rounded border 
@@ -196,8 +170,8 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                     {daysInCurrentState} días
                   </div>
                 </div>
-                <select 
-                  value={formData.estado_interno}
+                <select
+                  value={claim.estado_interno}
                   onChange={(e) => handleStateChange(e.target.value as InternalState)}
                   className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none"
                 >
@@ -211,7 +185,7 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                 </select>
 
                 {/* State History Mini-Table */}
-                {formData.stateHistory && formData.stateHistory.length > 0 && (
+                {claim.stateHistory && claim.stateHistory.length > 0 && (
                   <div className="mt-3">
                     <button className="flex items-center text-xs text-slate-500 hover:text-slate-300 transition-colors mb-2">
                       <History className="w-3 h-3 mr-1" /> Historial de Tiempos
@@ -225,7 +199,7 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-700/50">
-                          {formData.stateHistory.slice(0, 3).map((entry, i) => (
+                          {claim.stateHistory.slice(0, 3).map((entry, i) => (
                             <tr key={i} className="text-slate-300">
                               <td className="p-2 truncate max-w-[150px]">{entry.state}</td>
                               <td className="p-2 text-right font-mono">{entry.daysDuration}</td>
@@ -246,7 +220,7 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                       key={p}
                       onClick={() => handleChange('prioridad', p)}
                       className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all
-                        ${formData.prioridad === p 
+                        ${formData.prioridad === p
                           ? (p === Priority.ALTA ? 'bg-rose-900/50 border-rose-500 text-rose-200' : p === Priority.MEDIA ? 'bg-amber-900/50 border-amber-500 text-amber-200' : 'bg-blue-900/50 border-blue-500 text-blue-200')
                           : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
                         }`}
@@ -259,12 +233,12 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
             </div>
 
             <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 space-y-6">
-               <div className="relative">
+              <div className="relative">
                 <label className="block text-xs font-medium text-slate-400 mb-1">Monto Pretensión (Reserva)</label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={formData.monto_reclamo}
                     onChange={(e) => handleChange('monto_reclamo', Number(e.target.value))}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-3 text-slate-100 placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
@@ -276,8 +250,8 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                 <div>
                   <label className="block text-xs font-medium text-slate-400 mb-1">Deducible</label>
                   <div className="relative">
-                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input 
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
                       type="number"
                       value={formData.valor_deducible}
                       onChange={(e) => handleChange('valor_deducible', Number(e.target.value))}
@@ -288,8 +262,8 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                 <div>
                   <label className="block text-xs font-medium text-slate-400 mb-1">Indemnización Bruta</label>
                   <div className="relative">
-                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input 
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
                       type="number"
                       value={formData.valor_indemnizacion}
                       onChange={(e) => handleChange('valor_indemnizacion', Number(e.target.value))}
@@ -313,12 +287,33 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
             <div className="p-4 border-b border-slate-800 bg-slate-900/50">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Bitácora</h3>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              {formData.timeline.map((event, idx) => (
+              {/* Combine claim.timeline (live) with any local notes? For now just use claim.timeline which updates on state change. 
+                  NOTE: formData.timeline might have new notes not yet saved. 
+                  We should probably use formData.timeline BUT we want to see the new state change event.
+                  Ideally: merge them or just trust formData syncs? 
+                  
+                  Let's use claim.timeline for the list, since State Change is a System Event in global Claim.
+                  BUT if user adds a note, it goes to formData.timeline.
+                  
+                  Simple fix: Use claim.timeline. When adding note, SAVE immediately or append to local display?
+                  
+                  Original code used formData.timeline.
+                  If I change state -> claim updates -> props.claim has new timeline event.
+                  formData still has old timeline.
+                  
+                  I should Update formData when inputs change?
+                  Ideally, I should sync formData with claim.timeline changes.
+                  
+                  Let's use claim.timeline here. Newly added notes (unsaved) won't appear unless I save them.
+                  In handleAddNote, it calls onUpdate (save) immediately! Line 86.
+                  So using claim.timeline is safe because notes are auto-saved.
+               */}
+              {claim.timeline.map((event, idx) => (
                 <div key={event.id} className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:rounded-full before:bg-slate-700">
                   {idx !== formData.timeline.length - 1 && (
-                     <div className="absolute left-[3px] top-4 w-0.5 h-full bg-slate-800 -z-10"></div>
+                    <div className="absolute left-[3px] top-4 w-0.5 h-full bg-slate-800 -z-10"></div>
                   )}
                   <div className="flex justify-between items-start mb-1">
                     <span className={`text-xs font-bold ${event.isSystem ? 'text-blue-400' : 'text-slate-200'}`}>
@@ -345,13 +340,13 @@ const ClaimDetail: React.FC<ClaimDetailProps> = ({ claim, onClose, onUpdate }) =
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   onKeyDown={(e) => {
-                    if(e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleAddNote();
                     }
                   }}
                 />
-                <button 
+                <button
                   onClick={handleAddNote}
                   className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg transition-colors"
                 >
