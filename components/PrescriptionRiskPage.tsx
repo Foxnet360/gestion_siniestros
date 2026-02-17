@@ -104,7 +104,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
             </div>
 
             {/* Controls */}
-            <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-4">
                 {/* Search and Stats */}
                 <div className="flex justify-between items-center">
                     <div className="relative">
@@ -114,18 +114,18 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                             placeholder="Buscar siniestro, póliza, placa..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-slate-900 border border-slate-700 text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:ring-1 focus:ring-rose-500 outline-none w-80"
+                            className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm rounded-lg pl-9 pr-4 py-2 text-slate-900 dark:text-white focus:ring-1 focus:ring-rose-500 outline-none w-80 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                     </div>
-                    <div className="text-sm text-slate-400">
-                        Mostrando <span className="font-bold text-white">{riskClaims.length}</span> casos críticos
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Mostrando <span className="font-bold text-slate-900 dark:text-white">{riskClaims.length}</span> casos críticos
                     </div>
                 </div>
 
                 {/* Filters Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2 border-t border-slate-700/50">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700/50">
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.asegurado}
                         onChange={(e) => handleFilterChange('asegurado', e.target.value)}
                     >
@@ -134,7 +134,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                     </select>
 
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.aseguradora}
                         onChange={(e) => handleFilterChange('aseguradora', e.target.value)}
                     >
@@ -143,7 +143,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                     </select>
 
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.ramo}
                         onChange={(e) => handleFilterChange('ramo', e.target.value)}
                     >
@@ -152,7 +152,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                     </select>
 
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.estado_interno}
                         onChange={(e) => handleFilterChange('estado_interno', e.target.value)}
                     >
@@ -161,7 +161,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                     </select>
 
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.tecnico_asignado}
                         onChange={(e) => handleFilterChange('tecnico_asignado', e.target.value)}
                     >
@@ -170,7 +170,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                     </select>
 
                     <select
-                        className="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-300 outline-none focus:border-rose-500"
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:border-rose-500"
                         value={filters.vendedor}
                         onChange={(e) => handleFilterChange('vendedor', e.target.value)}
                     >
@@ -181,10 +181,10 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
             </div>
 
             {/* Table */}
-            <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-lg">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-900 text-slate-400 uppercase text-xs font-semibold">
+                        <thead className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 uppercase text-xs font-semibold">
                             <tr>
                                 <th className="px-6 py-3">Siniestro / Póliza</th>
                                 <th className="px-6 py-3">Fecha Ocurrencia</th>
@@ -195,7 +195,7 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                                 <th className="px-6 py-3"></th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-700">
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                             {riskClaims.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
@@ -211,14 +211,14 @@ const PrescriptionRiskPage: React.FC<PrescriptionRiskPageProps> = ({ claims, onS
                                     return (
                                         <tr
                                             key={claim.id_softseguros}
-                                            className="hover:bg-slate-700/50 transition-colors cursor-pointer group"
+                                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
                                             onClick={() => onSelectClaim(claim)}
                                         >
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-white">{claim.numero_siniestro}</div>
+                                                <div className="font-medium text-slate-900 dark:text-white">{claim.numero_siniestro}</div>
                                                 <div className="text-slate-500 text-xs">{claim.asegurado}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-300">
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                                                 {new Date(claim.fecha_ocurrencia).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 font-bold text-rose-400">

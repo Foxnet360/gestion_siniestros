@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 
 // Load env vars
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;

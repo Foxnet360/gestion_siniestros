@@ -7,4 +7,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+    global: {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    },
+    db: {
+        schema: 'public'
+    }
+});

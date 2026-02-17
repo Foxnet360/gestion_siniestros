@@ -1,5 +1,70 @@
 import { Claim, WorkflowPhase, Priority, InternalState, User } from './types';
 
+// Field Ownership Constants for Smart Merge Ingestion
+// These arrays define which fields are updated during Excel ingestion
+
+/**
+ * SoftSeguros-owned fields (24 fields)
+ * These fields are ALWAYS updated from Excel during ingestion
+ */
+export const SOFTSEGUROS_OWNED_FIELDS: (keyof Claim)[] = [
+  'numero_siniestro',
+  'numero_siniestro_compania',
+  'tipo_siniestro',
+  'fecha_ocurrencia', // maps to fecha_siniestro
+  'fecha_aviso',
+  'fecha_notificacion_aseguradora',
+  'proveedor_asignado',
+  'descripcion',
+  'poliza',
+  'asegurado', // maps to nombre_asegurado
+  'documento_asegurado',
+  'valor_indemnizacion',
+  'placa_bien', // maps to riesgo
+  'vendedor', // maps to cliente
+  'email_principal',
+  'celular_principal',
+  'aseguradora',
+  'ramo', // maps to subramo
+  'porcentaje_siniestralidad',
+  'estado_softseguros',
+  'finalizado',
+  'fecha_finalizacion',
+  'usuario_registro', // maps to usuario_registra_siniestro
+  'ultimo_seguimiento_raw',
+  'valor_deducible', // maps to deducible
+  'coaseguros',
+  'monto_reclamo'
+];
+
+/**
+ * Internal-only fields (9 fields)
+ * These fields are NEVER modified during ingestion - they are managed internally
+ */
+export const INTERNAL_ONLY_FIELDS: (keyof Claim)[] = [
+  'id_interno', // responsable in DB
+  'lastStateChangeDate', // fecha_ultimo_seguimiento
+  'prescripcion_ordinaria',
+  'prescripcion_extraordinaria',
+  'estado_interno', // estado_ultima_gestion
+  'tecnico_asignado', // tecnico
+  'proximo_seguimiento',
+  'prioridad',
+  'stateHistory',
+  'timeline',
+  'updatedAt',
+  'aliado_origen'
+];
+
+/**
+ * Hybrid fields (2 fields)
+ * These fields are updated from the Gestión sheet (special logic)
+ */
+export const HYBRID_FIELDS: (keyof Claim)[] = [
+  'gestion_softseguros',
+  'estado_gestion_softseguros'
+];
+
 export const WORKFLOW_PHASES: WorkflowPhase[] = [
   {
     id: 1,
