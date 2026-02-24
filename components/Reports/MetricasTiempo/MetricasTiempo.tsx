@@ -3,10 +3,12 @@ import ReportLayout from '../common/ReportLayout';
 import ReportFilters from '../common/ReportFilters';
 import ExportButtons from '../common/ExportButtons';
 import TiemposPorFase from './TiemposPorFase';
+import TiemposTendenciaLineChart from './TiemposTendenciaLineChart';
 import { useClaims } from '../../../context/ClaimsContext';
 import { useTiemposPromedio } from '../../../hooks/reports/useTiemposPromedio';
-import type { ReportFilters as ReportFiltersType } from '../../../types/reports';
-import type { ExportOptions } from '../../../types/reports';
+import { exportToExcel } from '../../../services/reports/excelExport';
+import { exportToPDF, exportExecutivePDF } from '../../../services/reports/pdfExport';
+import type { ReportFilters as ReportFiltersType, ExportOptions, ExecutiveReportData } from '../../../types/reports';
 
 interface MetricasTiempoProps {
   onBack: () => void;
@@ -31,15 +33,112 @@ const MetricasTiempo: React.FC<MetricasTiempoProps> = ({ onBack }) => {
     tecnico: [...new Set(claims.map(c => c.tecnico_asignado))].filter(Boolean).sort(),
   }), [claims]);
 
+  const filteredClaims = useMemo(() => {
+    return claims.filter((claim) => {
+      // Date Range Filter
+      if (filters.dateRange) {
+        const date = claim.fecha_aviso ? new Date(claim.fecha_aviso) : null;
+        if (!date || date < filters.dateRange.start || date > filters.dateRange.end) return false;
+      }
+
+      // Dimension Filters
+      if (filters.ramo.length > 0 && !filters.ramo.includes(claim.ramo)) return false;
+      if (filters.aseguradora.length > 0 && !filters.aseguradora.includes(claim.aseguradora)) return false;
+      if (filters.tecnico.length > 0 && (!claim.tecnico_asignado || !filters.tecnico.includes(claim.tecnico_asignado))) return false;
+      if (filters.estado.length > 0 && !filters.estado.includes(claim.estado_interno)) return false;
+
+      return true;
+    });
+  }, [claims, filters]);
+
   // Calculate time metrics
   const tiempos = useTiemposPromedio(claims, filters);
 
   const handleExportExcel = (options: ExportOptions) => {
-    console.log('Export Excel:', options);
+    const period = filters.dateRange
+      ? `${filters.dateRange.start.toLocaleDateString()} - ${filters.dateRange.end.toLocaleDateString()}`
+      : filters.datePreset;
+
+    const exportData = [
+      {
+        sheetName: 'Por Aseguradora',
+        headers: ['Aseguradora', 'Tiempo Promedio (Días)', 'Casos'],
+        data: tiempos.porAseguradora.map(item => [
+          item.aseguradora,
+          item.tiempo,
+          item.count
+        ]),
+        summary: {
+          title: `Métricas de Tiempo por Aseguradora - ${period}`,
+          kpis: [
+            { label: 'Tiempo Promedio General', value: `${Math.round(tiempos.general)} días` },
+            { label: 'Mejor Aseguradora', value: tiempos.porAseguradora[tiempos.porAseguradora.length - 1]?.aseguradora || '-' },
+            { label: 'Peor Aseguradora', value: tiempos.porAseguradora[0]?.aseguradora || '-' }
+          ]
+        }
+      },
+      {
+        sheetName: 'Por Ramo',
+        headers: ['Ramo', 'Tiempo Promedio (Días)', 'Casos'],
+        data: tiempos.porRamo.map(item => [
+          item.ramo,
+          item.tiempo,
+          item.count
+        ]),
+      }
+    ];
+
+    exportToExcel(exportData, 'Metricas_Tiempo', options);
   };
 
-  const handleExportPDF = (options: ExportOptions) => {
-    console.log('Export PDF:', options);
+  const handleExportPDF = async (options: ExportOptions) => {
+    const reportData: ExecutiveReportData = {
+      title: 'Informe Analítico de Tiempos de Gestión',
+      subtitle: 'Eficiencia por Fases y Dimensiones de Negocio',
+      reportType: 'METRICAS_TIEMPO',
+      period: filters.datePreset,
+      highlights: [
+        { label: 'Tiempo Promedio', value: `${Math.round(tiempos.general)} días`, type: tiempos.general < 30 ? 'positive' : 'neutral' },
+        { label: 'Mejor Ramo', value: tiempos.porRamo[tiempos.porRamo.length - 1]?.ramo || '-', type: 'neutral' },
+        { label: 'Casos Analizados', value: filteredClaims.length.toString(), type: 'neutral' },
+      ],
+      sections: [
+        {
+          title: 'Ciclo de Vida por Fase',
+          description: 'Desglose del tiempo de permanencia de los siniestros en cada etapa del proceso.',
+          chartId: 'chart-tiempos-fase',
+          insights: [
+            `El proceso completo toma en promedio ${Math.round(tiempos.general)} días calendario.`,
+            'Se observa una oportunidad de mejora en las fases que superan los 15 días de gestión.',
+            'La optimización de la fase inicial (Aviso) impacta directamente en la satisfacción del asegurado.'
+          ]
+        },
+        {
+          title: 'Tendencia Histórica',
+          description: 'Evolución del tiempo promedio de cierre en los últimos 12 meses.',
+          chartId: 'chart-tiempos-tendencia',
+          insights: [
+            tiempos.general < 35
+              ? 'La tendencia se mantiene estable y dentro de los parámetros de eficiencia aceptables.'
+              : 'Se requiere una revisión de procesos debido a la tendencia incremental en los tiempos de respuesta.'
+          ]
+        },
+        {
+          title: 'Desempeño por Aseguradora',
+          description: 'Comparativo de tiempos de respuesta por compañía aseguradora.',
+          insights: [
+            `La aseguradora ${tiempos.porAseguradora[tiempos.porAseguradora.length - 1]?.aseguradora} lidera en rapidez con ${Math.round(tiempos.porAseguradora[tiempos.porAseguradora.length - 1]?.tiempo || 0)} días.`,
+            `Se recomienda realizar mesas de trabajo con ${tiempos.porAseguradora[0]?.aseguradora} para agilizar sus procesos internos.`
+          ],
+          table: {
+            headers: ['Aseguradora', 'Tiempo Promedio', 'Volumen de Casos'],
+            rows: tiempos.porAseguradora.map(a => [a.aseguradora, `${Math.round(a.tiempo)} d`, a.count])
+          }
+        }
+      ]
+    };
+
+    await exportExecutivePDF(reportData, options);
   };
 
   return (
@@ -54,7 +153,7 @@ const MetricasTiempo: React.FC<MetricasTiempoProps> = ({ onBack }) => {
         />
       }
     >
-      <div className="space-y-6">
+      <div id="metricas-tiempo-content" className="space-y-6">
         <ReportFilters
           filters={filters}
           onFiltersChange={setFilters}
@@ -91,7 +190,10 @@ const MetricasTiempo: React.FC<MetricasTiempoProps> = ({ onBack }) => {
           </div>
         </div>
 
-        <TiemposPorFase claims={claims} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TiemposPorFase claims={filteredClaims} />
+          <TiemposTendenciaLineChart claims={filteredClaims} />
+        </div>
 
         {/* Tables by dimension */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

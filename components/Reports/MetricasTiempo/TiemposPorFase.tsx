@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bar } from 'react-chartjs-2';
+import { Chart } from 'react-chartjs-2';
 import type { Claim } from '../../../types';
 import { useTiemposPorFase } from '../../../hooks/reports/useTiemposPorFase';
 import { CHART_COLORS, barChartOptions } from '../../../utils/chartConfig';
@@ -13,24 +13,38 @@ const TiemposPorFase: React.FC<TiemposPorFaseProps> = ({ claims }) => {
 
   const data = {
     labels: tiempos.map(t => `Fase ${t.faseId}: ${t.fase.split(' ')[0]}`),
-    datasets: [{
-      label: 'Días promedio',
-      data: tiempos.map(t => t.tiempoPromedio),
-      backgroundColor: tiempos.map(t => {
-        if (t.tiempoPromedio > 20) return CHART_COLORS.danger;
-        if (t.tiempoPromedio > 10) return CHART_COLORS.warning;
-        return CHART_COLORS.success;
-      }),
-      borderRadius: 4,
-    }],
+    datasets: [
+      {
+        type: 'line' as const,
+        label: 'Meta (15 días)',
+        data: tiempos.map(() => 15),
+        borderColor: '#64748b',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        pointRadius: 0,
+        order: 0,
+      },
+      {
+        type: 'bar' as const,
+        label: 'Días promedio',
+        data: tiempos.map(t => t.tiempoPromedio),
+        backgroundColor: tiempos.map(t => {
+          if (t.tiempoPromedio > 20) return CHART_COLORS.danger;
+          if (t.tiempoPromedio > 10) return CHART_COLORS.warning;
+          return CHART_COLORS.success;
+        }),
+        borderRadius: 4,
+        order: 1,
+      }
+    ],
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
+    <div id="chart-tiempos-fase" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
       <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tiempos por Fase del Workflow</h3>
 
       <div className="h-64">
-        <Bar data={data} options={barChartOptions} />
+        <Chart type="bar" data={data as any} options={barChartOptions} />
       </div>
 
       <div className="mt-4 flex items-center gap-4 text-sm font-medium">

@@ -139,6 +139,17 @@ Ordena aseguradoras por:
 - Menor porcentaje de objeciones
 - Mayor tasa de cierre exitoso
 
+### Comparativo por Ramo
+Ranking de eficiencia por ramo de seguro (Autos, Vida, etc.) evaluando:
+- Tiempo promedio de gestión
+- % de objeciones por ramo
+- Tasa de cierre exitoso
+
+### Histórico Mensual (Últimos 12 meses)
+Visualización de la tendencia histórica de:
+- Montos Reclamados vs Indemnizados
+- Evolución del tiempo promedio de gestión mensual
+
 ### Variación (%)
 ```
 Variación = ((Valor_Actual - Valor_Anterior) / Valor_Anterior) × 100

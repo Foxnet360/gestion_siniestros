@@ -7,7 +7,7 @@ import {
   BarChart3,
   ChevronRight
 } from 'lucide-react';
-import type { User } from '../../types';
+import type { User, Claim } from '../../types';
 import { REPORT_TYPES } from '../../constants/reports';
 import DashboardGerencial from './DashboardGerencial/DashboardGerencial';
 import ReportePrescripcion from './ReportePrescripcion/ReportePrescripcion';
@@ -17,6 +17,7 @@ import AnalisisComparativo from './AnalisisComparativo/AnalisisComparativo';
 
 interface ReportsPageProps {
   currentUser: User;
+  onSelectClaim?: (claim: Claim) => void;
 }
 
 type ReportView = 'selector' | 'dashboard-gerencial' | 'reporte-prescripcion' | 'dashboard-operativo' | 'metricas-tiempo' | 'analisis-comparativo';
@@ -29,7 +30,7 @@ const iconMap = {
   BarChart3,
 };
 
-const ReportsPage: React.FC<ReportsPageProps> = ({ currentUser }) => {
+const ReportsPage: React.FC<ReportsPageProps> = ({ currentUser, onSelectClaim }) => {
   const [currentReport, setCurrentReport] = useState<ReportView>('selector');
 
   // Guard: Only ADMIN can access
@@ -55,9 +56,9 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ currentUser }) => {
       case 'dashboard-gerencial':
         return <DashboardGerencial onBack={handleBackToSelector} />;
       case 'reporte-prescripcion':
-        return <ReportePrescripcion onBack={handleBackToSelector} />;
+        return <ReportePrescripcion onBack={handleBackToSelector} onSelectClaim={onSelectClaim} />;
       case 'dashboard-operativo':
-        return <DashboardOperativo onBack={handleBackToSelector} />;
+        return <DashboardOperativo onBack={handleBackToSelector} onSelectClaim={onSelectClaim} />;
       case 'metricas-tiempo':
         return <MetricasTiempo onBack={handleBackToSelector} />;
       case 'analisis-comparativo':

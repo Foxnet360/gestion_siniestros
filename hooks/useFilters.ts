@@ -19,7 +19,7 @@ export const useFilterOptions = (claims: Claim[]) => {
       ramos: uniqueValues(claims.map(c => c.ramo)),
       aseguradoras: uniqueValues(claims.map(c => c.aseguradora)),
       estados: uniqueValues(claims.map(c => c.estado_interno)),
-      tecnicos: uniqueValues(claims.map(c => c.tecnico_asignado)),
+      polizas: uniqueValues(claims.map(c => c.poliza)),
       aliados: uniqueValues(claims.map(c => c.aliado_origen)),
       vendedores: uniqueValues(claims.map(c => c.vendedor)),
     };
@@ -47,9 +47,7 @@ export const useKpiData = (claims: Claim[]) => {
     );
     const successClaims = closedClaims.filter(c => c.valor_indemnizacion > 0);
     const tasaExito =
-      closedClaims.length > 0
-        ? (successClaims.length / closedClaims.length) * 100
-        : 0;
+      closedClaims.length > 0 ? (successClaims.length / closedClaims.length) * 100 : 0;
 
     // Casos quietos (> 30 días)
     const today = new Date();
@@ -59,11 +57,7 @@ export const useKpiData = (claims: Claim[]) => {
         : new Date(c.updatedAt);
       const diffTime = Math.abs(today.getTime() - lastChange.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return (
-        diffDays > 30 &&
-        c.estado_interno !== 'PAGADO' &&
-        c.estado_interno !== 'FINALIZADO'
-      );
+      return diffDays > 30 && c.estado_interno !== 'PAGADO' && c.estado_interno !== 'FINALIZADO';
     }).length;
 
     return {
@@ -85,10 +79,7 @@ export const useKpiData = (claims: Claim[]) => {
  * @param key - Clave por la cual agrupar
  * @returns Array de tuplas [valor, claims[]] ordenado por cantidad
  */
-export const useGroupedClaims = <K extends keyof Claim>(
-  claims: Claim[],
-  key: K
-) => {
+export const useGroupedClaims = <K extends keyof Claim>(claims: Claim[], key: K) => {
   return useMemo(() => {
     const grouped: Record<string, Claim[]> = {};
 
@@ -98,7 +89,6 @@ export const useGroupedClaims = <K extends keyof Claim>(
       grouped[val].push(claim);
     });
 
-    return Object.entries(grouped).sort((a, b) => b[1].length - a[1].length
-    );
+    return Object.entries(grouped).sort((a, b) => b[1].length - a[1].length);
   }, [claims, key]);
 };

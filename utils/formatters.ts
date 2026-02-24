@@ -8,10 +8,7 @@
  * @param options - Opciones adicionales de Intl.NumberFormat
  * @returns String formateado (ej: "$ 15.000.000")
  */
-export const formatCurrency = (
-  value: number,
-  options: Intl.NumberFormatOptions = {}
-): string => {
+export const formatCurrency = (value: number, options: Intl.NumberFormatOptions = {}): string => {
   const defaultOptions: Intl.NumberFormatOptions = {
     style: 'currency',
     currency: 'COP',
@@ -29,11 +26,13 @@ export const formatCurrency = (
  * @returns String formateado (ej: "13/02/2026")
  */
 export const formatDate = (
-  date: string | Date,
+  date: string | Date | null | undefined,
   options: Intl.DateTimeFormatOptions = {}
 ): string => {
+  if (!date) return '-';
+
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return 'Fecha inválida';
   }

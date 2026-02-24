@@ -1,7 +1,7 @@
 import React from 'react';
 import { Claim } from '../types';
-import { getPhaseColor } from '../constants';
-import { ChevronRight, Search } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { formatDate } from '../utils/formatters';
 
 interface ClaimsTableProps {
   claims: Claim[];
@@ -11,66 +11,76 @@ interface ClaimsTableProps {
 const ClaimsTable: React.FC<ClaimsTableProps> = ({ claims, onSelectClaim }) => {
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
         <h3 className="font-bold text-slate-900 dark:text-white">Listado Maestro</h3>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por placa, póliza..."
-            className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm rounded-lg pl-9 pr-4 py-2 text-slate-900 dark:text-white focus:ring-1 focus:ring-blue-500 outline-none w-64 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-          />
-        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 uppercase text-xs font-semibold">
             <tr>
-              <th className="px-6 py-3">Siniestro / Póliza</th>
-              <th className="px-6 py-3">Asegurado</th>
-              <th className="px-6 py-3">Estado Interno</th>
-              <th className="px-6 py-3 text-right">Reclamado</th>
-              <th className="px-6 py-3 text-right">Neto a Pagar</th>
-              <th className="px-6 py-3"></th>
+              <th className="px-4 py-3">N° Siniestro</th>
+              <th className="px-4 py-3">N° Siniestro Compañía</th>
+              <th className="px-4 py-3">Tipo</th>
+              <th className="px-4 py-3">Fecha Siniestro</th>
+              <th className="px-4 py-3">Fecha Aviso</th>
+              <th className="px-4 py-3">Fecha Radicación</th>
+              <th className="px-4 py-3">Proveedor</th>
+              <th className="px-4 py-3">Póliza</th>
+              <th className="px-4 py-3">Aseguradora</th>
+              <th className="px-4 py-3">Ramo</th>
+              <th className="px-4 py-3">Estado Etapa</th>
+              <th className="px-4 py-3">Último Seguimiento</th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {claims.map((claim) => {
-              const color = getPhaseColor(claim.estado_interno);
-              // Helper for dynamic tailwind classes
-              const badgeClass = `bg-${color}-100 dark:bg-${color}-900/30 text-${color}-700 dark:text-${color}-200 border-${color}-200 dark:border-${color}-800`;
-
-              return (
-                <tr
-                  key={claim.id_softseguros}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
-                  onClick={() => onSelectClaim(claim)}
-                >
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900 dark:text-white">{claim.numero_siniestro}</div>
-                    <div className="text-slate-500 text-xs">{claim.poliza}</div>
-                  </td>
-                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                    {claim.asegurado}
-                    <div className="text-slate-500 text-xs">{claim.placa_bien}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border border-transparent ${badgeClass}`}>
-                      {claim.estado_interno}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right text-slate-600 dark:text-slate-300 font-mono">
-                    ${claim.monto_reclamo.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-right font-mono font-medium text-emerald-400">
-                    ${((claim.valor_indemnizacion || 0) - (claim.valor_deducible || 0)).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <ChevronRight className="w-5 h-5 text-slate-500 inline-block" />
-                  </td>
-                </tr>
-              );
-            })}
+            {claims.map(claim => (
+              <tr
+                key={claim.id_softseguros}
+                className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                onClick={() => onSelectClaim(claim)}
+              >
+                <td className="px-4 py-3">
+                  <div className="font-medium text-slate-900 dark:text-white">
+                    {claim.numero_siniestro}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {claim.numero_siniestro_compania || '-'}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {claim.tipo_siniestro || '-'}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {formatDate(claim.fecha_ocurrencia)}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {formatDate(claim.fecha_aviso)}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {formatDate(claim.fecha_notificacion_aseguradora)}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {claim.proveedor_asignado || '-'}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{claim.poliza}</td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                  {claim.aseguradora}
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{claim.ramo}</td>
+                <td className="px-4 py-3">
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+                    {claim.estado_interno}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
+                  {claim.ultimo_seguimiento_raw || '-'}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <ChevronRight className="w-5 h-5 text-slate-500 inline-block" />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

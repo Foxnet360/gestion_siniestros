@@ -38,7 +38,7 @@ export interface IngestionReport {
 // ============================================================================
 
 // Debug flag - enable to see detailed comparison logs
-const DEBUG_AUDIT = true;
+const DEBUG_AUDIT = false;
 
 /**
  * Normalizes and compares two values for equality

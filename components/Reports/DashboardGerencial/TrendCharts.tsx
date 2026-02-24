@@ -110,14 +110,14 @@ const TrendCharts: React.FC<TrendChartsProps> = ({ claims, filters }) => {
       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tendencias (Últimos 6 meses)</h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
+        <div id="chart-reclamado-indemnizado" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
           <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-wider">Reclamado vs Indemnizado (Millones COP)</h4>
           <div className="h-64">
             <Bar data={barData} options={barChartOptions} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
+        <div id="chart-evolucion-casos" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
           <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-wider">Evolución de Casos</h4>
           <div className="h-64">
             <Line data={lineData} options={lineChartOptions} />

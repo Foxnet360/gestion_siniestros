@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import type { Claim } from '../../types';
-import type { ComparativoPeriodo, ComparativoAseguradora } from '../../types/reports';
+import type { ComparativoPeriodo, ComparativoAseguradora, ComparativoRamo, ComparativoHistorico } from '../../types/reports';
 
 interface ComparativosData {
   mesVsMes: { actual: ComparativoPeriodo; anterior: ComparativoPeriodo } | null;
   anioVsAnio: { actual: ComparativoPeriodo; anterior: ComparativoPeriodo } | null;
   porAseguradora: ComparativoAseguradora[];
+  porRamo: ComparativoRamo[];
+  historicoMensual: ComparativoHistorico[];
 }
 
 export function useComparativos(claims: Claim[]): ComparativosData {
@@ -47,6 +49,7 @@ export function useComparativos(claims: Claim[]): ComparativosData {
         casosCerrados: finalizedClaims.length,
         tiempoPromedio,
         porcentajeObjeciones,
+        tasaCierreExitoso: periodClaims.length > 0 ? (finalizedClaims.length / periodClaims.length) * 100 : 0
       };
     };
 
@@ -110,10 +113,61 @@ export function useComparativos(claims: Claim[]): ComparativosData {
       };
     }).sort((a, b) => a.tiempoPromedio - b.tiempoPromedio);
 
+    // Por Ramo
+    const ramoMap = new Map<string, Claim[]>();
+    claims.forEach((c) => {
+      const existing = ramoMap.get(c.ramo) || [];
+      existing.push(c);
+      ramoMap.set(c.ramo, existing);
+    });
+
+    const porRamo = Array.from(ramoMap.entries()).map(([ramo, ramoClaims]) => {
+      const totalClaims = ramoClaims.length;
+      const conObjecion = ramoClaims.filter((c) => c.estado_interno === 'OBJECIÓN').length;
+      const porcentajeObjeciones = totalClaims > 0 ? (conObjecion / totalClaims) * 100 : 0;
+
+      const finalizedClaims = ramoClaims.filter((c) => c.finalizado);
+      const tiemposCierre = finalizedClaims
+        .filter((c) => c.fecha_aviso && c.fecha_finalizacion)
+        .map((c) => {
+          const aviso = new Date(c.fecha_aviso!);
+          const cierre = new Date(c.fecha_finalizacion!);
+          return Math.floor((cierre.getTime() - aviso.getTime()) / (1000 * 60 * 60 * 24));
+        });
+      const tiempoPromedio = tiemposCierre.length > 0
+        ? tiemposCierre.reduce((a, b) => a + b, 0) / tiemposCierre.length
+        : 0;
+
+      const tasaCierreExitoso = totalClaims > 0 ? (finalizedClaims.length / totalClaims) * 100 : 0;
+
+      return {
+        ramo,
+        tiempoPromedio,
+        porcentajeObjeciones,
+        tasaCierreExitoso,
+      };
+    }).sort((a, b) => a.tiempoPromedio - b.tiempoPromedio);
+
+    // Histórico Últimos 12 meses
+    const historicoMensual: ComparativoHistorico[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+      const metricas = calcularMetricasPeriodo(monthStart, monthEnd);
+      historicoMensual.push({
+        mes: monthStart.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' }),
+        reclamado: metricas.totalReclamado,
+        indemnizado: metricas.totalIndemnizado,
+        tiempoPromedio: metricas.tiempoPromedio
+      });
+    }
+
     return {
       mesVsMes,
       anioVsAnio,
       porAseguradora,
+      porRamo,
+      historicoMensual,
     };
   }, [claims]);
 }

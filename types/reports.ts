@@ -6,7 +6,7 @@ import type { Claim, InternalState } from '../types';
 // FILTERS & CONFIGURATION
 // ============================================================================
 
-export type DateRangePreset = 
+export type DateRangePreset =
   | 'this-month'
   | 'last-month'
   | 'this-quarter'
@@ -139,6 +139,7 @@ export interface ComparativoPeriodo {
   casosCerrados: number;
   tiempoPromedio: number;
   porcentajeObjeciones: number;
+  tasaCierreExitoso: number;
 }
 
 export interface ComparativoAseguradora {
@@ -147,6 +148,20 @@ export interface ComparativoAseguradora {
   porcentajeObjeciones: number;
   reconsideracionesExitosas: number;
   tasaCierreExitoso: number;
+}
+
+export interface ComparativoRamo {
+  ramo: string;
+  tiempoPromedio: number;
+  porcentajeObjeciones: number;
+  tasaCierreExitoso: number;
+}
+
+export interface ComparativoHistorico {
+  mes: string;
+  reclamado: number;
+  indemnizado: number;
+  tiempoPromedio: number;
 }
 
 export interface RankingItem {
@@ -159,7 +174,7 @@ export interface RankingItem {
 // REPORT TYPES
 // ============================================================================
 
-export type ReportType = 
+export type ReportType =
   | 'dashboard-gerencial'
   | 'reporte-prescripcion'
   | 'dashboard-operativo'
@@ -186,6 +201,52 @@ export interface ExportOptions {
     thousandsSeparator: string;
     decimalSeparator: string;
     decimalPlaces: number;
+  };
+}
+
+// ============================================================================
+// EXECUTIVE REPORT TYPES
+// ============================================================================
+
+export interface ExecutiveReportHighlight {
+  label: string;
+  value: string;
+  subValue?: string;
+  type: 'neutral' | 'positive' | 'negative';
+}
+
+export interface ExecutiveReportSection {
+  title: string;
+  description?: string;
+  chartId?: string; // ID of the HTML element containing the chart for capture
+  insights: string[];
+  table?: {
+    headers: string[];
+    rows: (string | number)[][];
+    widths?: number[];
+  };
+}
+
+export interface ExecutiveReportData {
+  title: string;
+  subtitle?: string;
+  reportType: string;
+  period: string;
+  highlights: ExecutiveReportHighlight[];
+  sections: ExecutiveReportSection[];
+  branding?: {
+    logoUrl?: string;
+    companyName?: string;
+  };
+}
+
+export interface ExcelExportData {
+  sheetName: string;
+  headers: string[];
+  data: (string | number | Date)[][];
+  summary?: {
+    title: string;
+    kpis: { label: string; value: string | number }[];
   };
 }
 

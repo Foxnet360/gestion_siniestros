@@ -34,7 +34,7 @@ export const SOFTSEGUROS_OWNED_FIELDS: (keyof Claim)[] = [
   'ultimo_seguimiento_raw',
   'valor_deducible', // maps to deducible
   'coaseguros',
-  'monto_reclamo'
+  'monto_reclamo',
 ];
 
 /**
@@ -53,61 +53,58 @@ export const INTERNAL_ONLY_FIELDS: (keyof Claim)[] = [
   'stateHistory',
   'timeline',
   'updatedAt',
-  'aliado_origen'
+  'aliado_origen',
 ];
 
 /**
  * Hybrid fields (2 fields)
  * These fields are updated from the Gestión sheet (special logic)
  */
-export const HYBRID_FIELDS: (keyof Claim)[] = [
-  'gestion_softseguros',
-  'estado_gestion_softseguros'
-];
+export const HYBRID_FIELDS: (keyof Claim)[] = ['gestion_softseguros', 'estado_gestion_softseguros'];
 
 export const WORKFLOW_PHASES: WorkflowPhase[] = [
   {
     id: 1,
     label: '1. AVISO - SOPORTES - ESTUDIO',
     states: ['AVISO SINIESTRO', 'OBTENCIÓN SOPORTES', 'ESTUDIO TÉCNICO CORREDORES'],
-    color: 'slate'
+    color: 'slate',
   },
   {
     id: 2,
     label: '2. RADICACIÓN - AJUSTE',
     states: ['RADICACIÓN COMPAÑÍA', 'AJUSTADOR', 'DOCUMENTOS ADICIONALES'],
-    color: 'blue'
+    color: 'blue',
   },
   {
     id: 3,
     label: '3. LIQUIDACIÓN - OBJECIÓN',
     states: ['DOCUMENTOS COMPLETOS', 'DEVOLUCIÓN DE DOCUMENTOS', 'LIQUIDACIÓN', 'OBJECIÓN'],
-    color: 'indigo'
+    color: 'indigo',
   },
   {
     id: 4,
     label: '4. RECONSIDERACIÓN',
     states: ['RECONSIDERACIÓN LIQUIDACIÓN', 'RECONSIDERACION OBJECIÓN', 'DESISTIMIENTO'],
-    color: 'violet'
+    color: 'violet',
   },
   {
     id: 5,
     label: '5. RATIFICACIÓN',
     states: ['RATIFICACIÓN LIQUIDACIÓN', 'RATIFICACIÓN OBJECIÓN'],
-    color: 'amber'
+    color: 'amber',
   },
   {
     id: 6,
     label: '6. JURÍDICO - PRESCRIPCIÓN',
     states: ['PRESCRIPCIÓN', 'PROCESO JURÍDICO'],
-    color: 'rose'
+    color: 'rose',
   },
   {
     id: 7,
     label: '7. PAGO - FINALIZADO',
     states: ['FIRMA INDEMNIZACIÓN', 'EN PROCESO PAGO INDEMNIZACIÓN', 'FINALIZADO', 'PAGADO'],
-    color: 'emerald'
-  }
+    color: 'emerald',
+  },
 ];
 
 // Helper to get color based on state
@@ -122,14 +119,14 @@ export const MOCK_USERS: User[] = [
     name: 'Gonzalo Duque',
     email: 'tecnico@softseguros.com',
     role: 'TECNICO',
-    initials: 'GD'
+    initials: 'GD',
   },
   {
     id: 'u2',
     name: 'Maria Gerente',
     email: 'admin@softseguros.com',
     role: 'ADMIN',
-    initials: 'MG'
+    initials: 'MG',
   },
   {
     id: 'u3',
@@ -137,8 +134,8 @@ export const MOCK_USERS: User[] = [
     email: 'contacto@bolivar.com',
     role: 'ALIADO',
     initials: 'SB',
-    aliadoId: 'Seguros Bolívar'
-  }
+    aliadoId: 'Seguros Bolívar',
+  },
 ];
 
 export const INITIAL_CLAIMS: Claim[] = [
@@ -167,8 +164,8 @@ export const INITIAL_CLAIMS: Claim[] = [
         startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
         endDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
         daysDuration: 5,
-        author: 'Sistema'
-      }
+        author: 'Sistema',
+      },
     ],
 
     prioridad: Priority.ALTA,
@@ -177,9 +174,20 @@ export const INITIAL_CLAIMS: Claim[] = [
     valor_indemnizacion: 0,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
     timeline: [
-      { id: 't1', date: new Date().toISOString(), author: 'Sistema', text: 'Importado desde Softseguros', isSystem: true },
-      { id: 't2', date: new Date().toISOString(), author: 'Gonzalo Duque', text: 'Iniciando revisión de cobertura.' }
-    ]
+      {
+        id: 't1',
+        date: new Date().toISOString(),
+        author: 'Sistema',
+        text: 'Importado desde Softseguros',
+        isSystem: true,
+      },
+      {
+        id: 't2',
+        date: new Date().toISOString(),
+        author: 'Gonzalo Duque',
+        text: 'Iniciando revisión de cobertura.',
+      },
+    ],
   },
   {
     id_softseguros: 'SOFT-002',
@@ -208,8 +216,13 @@ export const INITIAL_CLAIMS: Claim[] = [
     valor_indemnizacion: 0,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(),
     timeline: [
-      { id: 't3', date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(), author: 'Sistema', text: 'Importado.' }
-    ]
+      {
+        id: 't3',
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(),
+        author: 'Sistema',
+        text: 'Importado.',
+      },
+    ],
   },
   {
     id_softseguros: 'SOFT-003',
@@ -237,8 +250,13 @@ export const INITIAL_CLAIMS: Claim[] = [
     valor_indemnizacion: 1800000,
     updatedAt: new Date().toISOString(),
     timeline: [
-      { id: 't4', date: new Date().toISOString(), author: 'Carlos Tech', text: 'Ajuste finalizado, listo para cierre.' }
-    ]
+      {
+        id: 't4',
+        date: new Date().toISOString(),
+        author: 'Carlos Tech',
+        text: 'Ajuste finalizado, listo para cierre.',
+      },
+    ],
   },
   {
     id_softseguros: 'SOFT-004',
@@ -265,7 +283,7 @@ export const INITIAL_CLAIMS: Claim[] = [
     valor_deducible: 200000,
     valor_indemnizacion: 1000000,
     updatedAt: new Date().toISOString(),
-    timeline: []
+    timeline: [],
   },
   {
     id_softseguros: 'SOFT-005',
@@ -293,6 +311,6 @@ export const INITIAL_CLAIMS: Claim[] = [
     valor_deducible: 50000000,
     valor_indemnizacion: 0,
     updatedAt: new Date().toISOString(),
-    timeline: []
-  }
+    timeline: [],
+  },
 ];

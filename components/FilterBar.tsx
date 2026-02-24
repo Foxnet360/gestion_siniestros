@@ -27,7 +27,7 @@ const FilterBar: React.FC = () => {
       ramo: [],
       aseguradora: [],
       estado: [],
-      tecnico: [],
+      poliza: [],
       aliado: [],
     });
   };
@@ -36,7 +36,7 @@ const FilterBar: React.FC = () => {
     filters.ramo.length > 0 ||
     filters.aseguradora.length > 0 ||
     filters.estado.length > 0 ||
-    filters.tecnico.length > 0 ||
+    filters.poliza.length > 0 ||
     filters.searchTerm;
 
   return (
@@ -57,9 +57,15 @@ const FilterBar: React.FC = () => {
         {/* Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center text-slate-500 text-xs uppercase tracking-wider font-bold mr-2">
-            <Filter className="w-3 h-3 mr-1" /> Filters:
+            <Filter className="w-3 h-3 mr-1" /> Filtros:
           </div>
 
+          <FilterDropdown
+            title="Número de Póliza"
+            options={options.polizas}
+            selected={filters.poliza}
+            onToggle={value => toggleFilter('poliza', value)}
+          />
           <FilterDropdown
             title="Ramo"
             options={options.ramos}
@@ -77,12 +83,6 @@ const FilterBar: React.FC = () => {
             options={options.estados}
             selected={filters.estado}
             onToggle={value => toggleFilter('estado', value)}
-          />
-          <FilterDropdown
-            title="Técnico"
-            options={options.tecnicos}
-            selected={filters.tecnico}
-            onToggle={value => toggleFilter('tecnico', value)}
           />
 
           {hasActiveFilters && (
@@ -111,10 +111,11 @@ const FilterDropdown: React.FC<FilterDropdownProps> = memo(
     return (
       <div className="relative group">
         <button
-          className={`flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${selected.length > 0
-            ? 'bg-blue-600/10 dark:bg-blue-900/30 border-blue-600/30 dark:border-blue-500/50 text-blue-600 dark:text-blue-300'
-            : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-            }`}
+          className={`flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+            selected.length > 0
+              ? 'bg-blue-600/10 dark:bg-blue-900/30 border-blue-600/30 dark:border-blue-500/50 text-blue-600 dark:text-blue-300'
+              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+          }`}
         >
           <span>{title}</span>
           {selected.length > 0 && (

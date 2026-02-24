@@ -5,9 +5,10 @@ import { formatCurrency } from '../../../utils/formatters';
 
 interface ProductividadTecnicosProps {
   data: ProductividadTecnico[];
+  onSelectTechnician?: (tecnico: string) => void;
 }
 
-const ProductividadTecnicos: React.FC<ProductividadTecnicosProps> = ({ data }) => {
+const ProductividadTecnicos: React.FC<ProductividadTecnicosProps> = ({ data, onSelectTechnician }) => {
   if (data.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center shadow-sm">
@@ -40,9 +41,9 @@ const ProductividadTecnicos: React.FC<ProductividadTecnicosProps> = ({ data }) =
               <tr key={item.tecnico} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shadow-sm ${index === 0 ? 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' :
-                      index === 1 ? 'bg-slate-200 dark:bg-slate-400/20 text-slate-600 dark:text-slate-300' :
-                        index === 2 ? 'bg-amber-100 dark:bg-amber-600/20 text-amber-700 dark:text-amber-500' :
-                          'bg-slate-100 dark:bg-slate-700 text-slate-500'
+                    index === 1 ? 'bg-slate-200 dark:bg-slate-400/20 text-slate-600 dark:text-slate-300' :
+                      index === 2 ? 'bg-amber-100 dark:bg-amber-600/20 text-amber-700 dark:text-amber-500' :
+                        'bg-slate-100 dark:bg-slate-700 text-slate-500'
                     }`}>
                     {index + 1}
                   </span>
@@ -54,7 +55,16 @@ const ProductividadTecnicos: React.FC<ProductividadTecnicosProps> = ({ data }) =
                         {item.tecnico.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                       </span>
                     </div>
-                    <span className="text-slate-700 dark:text-slate-200 font-medium text-sm">{item.tecnico}</span>
+                    {onSelectTechnician ? (
+                      <button
+                        onClick={() => onSelectTechnician(item.tecnico)}
+                        className="text-slate-700 dark:text-slate-200 font-medium text-sm hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors text-left"
+                      >
+                        {item.tecnico}
+                      </button>
+                    ) : (
+                      <span className="text-slate-700 dark:text-slate-200 font-medium text-sm">{item.tecnico}</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-center">

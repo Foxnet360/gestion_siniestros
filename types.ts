@@ -38,7 +38,7 @@ export interface WorkflowPhase {
 export enum Priority {
   ALTA = 'Alta',
   MEDIA = 'Media',
-  BAJA = 'Baja'
+  BAJA = 'Baja',
 }
 
 export type Role = 'ADMIN' | 'TECNICO' | 'ALIADO';
@@ -99,13 +99,13 @@ export interface Claim {
 
   // New Grouping Fields
   /** @ownership SoftSeguros */
-  ramo: string;            // e.g., Autos, Vida, Hogar
+  ramo: string; // e.g., Autos, Vida, Hogar
   /** @ownership SoftSeguros */
-  aseguradora: string;     // e.g., Allianz, Mapfre
+  aseguradora: string; // e.g., Allianz, Mapfre
   /** @ownership SoftSeguros */
-  vendedor: string;        // Salesperson
+  vendedor: string; // Salesperson
   /** @ownership Internal */
-  tecnico_asignado: string;// Technician handling the claim
+  tecnico_asignado: string; // Technician handling the claim
   /** @ownership Internal */
   aliado_origen?: string; // Organization that owns/referred the policy
 
@@ -190,7 +190,7 @@ export interface FilterState {
   ramo: string[];
   aseguradora: string[];
   estado: string[];
-  tecnico: string[];
+  poliza: string[];
   aliado: string[];
   prescripcionRisk?: boolean; // Show only risk > 0
 }

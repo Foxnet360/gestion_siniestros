@@ -1,66 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SGS Extension - Gestión de Siniestros</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            slate: {
-              850: '#1e293b', // Custom darker slate
-              950: '#020617',
-            }
-          }
-        }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SGS Extension - Gestión de Siniestros</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/index.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
       }
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
 
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      /* slate-300 */
-      border-radius: 4px;
-    }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        /* slate-300 */
+        border-radius: 4px;
+      }
 
-    .dark ::-webkit-scrollbar-thumb {
-      background: #475569;
-      /* slate-600 */
-    }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+        /* slate-600 */
+      }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-      /* slate-400 */
-    }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+        /* slate-400 */
+      }
 
-    .dark ::-webkit-scrollbar-thumb:hover {
-      background: #64748b;
-      /* slate-500 */
-    }
-  </style>
-</head>
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+        /* slate-500 */
+      }
+    </style>
+  </head>
 
-<body
-  class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200">
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
-
+  <body
+    class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200"
+  >
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

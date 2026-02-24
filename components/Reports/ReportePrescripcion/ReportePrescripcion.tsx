@@ -3,16 +3,19 @@ import ReportLayout from '../common/ReportLayout';
 import ReportFilters from '../common/ReportFilters';
 import ExportButtons from '../common/ExportButtons';
 import TablaPrescripcion from './TablaPrescripcion';
+import type { Claim } from '../../../types';
 import { useClaims } from '../../../context/ClaimsContext';
 import { usePrescripcionRiesgo } from '../../../hooks/reports/usePrescripcionRiesgo';
-import type { ReportFilters as ReportFiltersType, RiesgoPrescripcion } from '../../../types/reports';
-import type { ExportOptions } from '../../../types/reports';
+import { exportToExcel } from '../../../services/reports/excelExport';
+import { exportToPDF, exportExecutivePDF } from '../../../services/reports/pdfExport';
+import type { ReportFilters as ReportFiltersType, RiesgoPrescripcion, ExportOptions, ExecutiveReportData } from '../../../types/reports';
 
 interface ReportePrescripcionProps {
   onBack: () => void;
+  onSelectClaim?: (claim: Claim) => void;
 }
 
-const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => {
+const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack, onSelectClaim }) => {
   const { claims } = useClaims();
 
   const [filters, setFilters] = useState<ReportFiltersType>({
@@ -61,11 +64,85 @@ const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => 
   }, [riesgosData]);
 
   const handleExportExcel = (options: ExportOptions) => {
-    console.log('Export Excel:', options);
+    const exportData = [
+      {
+        sheetName: 'Reporte de Prescripción',
+        headers: [
+          'Riesgo',
+          'Días Restantes',
+          'Número Siniestro',
+          'Asegurado',
+          'Aseguradora',
+          'Ramo',
+          'Técnico',
+          'Fecha Aviso',
+          'Fecha Prescripción',
+          'Días Sin Movimiento'
+        ],
+        data: filteredData.map(item => [
+          item.nivelRiesgo.toUpperCase(),
+          item.diasRestantes,
+          item.claim.numero_siniestro,
+          item.claim.asegurado,
+          item.claim.aseguradora,
+          item.claim.ramo,
+          item.claim.tecnico_asignado || 'Sin Asignar',
+          item.claim.fecha_aviso ? new Date(item.claim.fecha_aviso) : '',
+          item.claim.prescripcion_ordinaria ? new Date(item.claim.prescripcion_ordinaria) : '',
+          item.diasSinMovimiento
+        ]),
+        summary: {
+          title: 'Resumen de Riesgos de Prescripción',
+          kpis: [
+            { label: 'Casos Alto Riesgo', value: stats.alto },
+            { label: 'Casos Riesgo Medio', value: stats.medio },
+            { label: 'Casos Bajo Riesgo', value: stats.bajo },
+            { label: 'Total Casos', value: riesgosData.length }
+          ]
+        }
+      }
+    ];
+
+    exportToExcel(exportData, 'Reporte_Prescripcion', options);
   };
 
-  const handleExportPDF = (options: ExportOptions) => {
-    console.log('Export PDF:', options);
+  const handleExportPDF = async (options: ExportOptions) => {
+    const reportData: ExecutiveReportData = {
+      title: 'Reporte Crítico de Prescripción',
+      subtitle: 'Análisis de Siniestros Próximos a Vencer',
+      reportType: 'REPORTE_PRESCRIPCION',
+      period: 'Situación Actual',
+      highlights: [
+        { label: 'Alto Riesgo', value: stats.alto.toString(), type: 'negative' },
+        { label: 'Riesgo Medio', value: stats.medio.toString(), type: 'neutral' },
+        { label: 'Bajo Riesgo', value: stats.bajo.toString(), type: 'positive' },
+        { label: 'Total Analizados', value: riesgosData.length.toString(), type: 'neutral' },
+      ],
+      sections: [
+        {
+          title: 'Detalle de Casos Críticos',
+          description: `Se han identificado ${stats.alto} casos en nivel de alerta roja (menos de 30 días para prescribir).`,
+          insights: [
+            stats.alto > 0 ? `Urgente: Gestionar los ${stats.alto} casos de alto riesgo para evitar pérdidas financieras.` : 'No se detectan casos en riesgo alto de prescripción.',
+            `La mayoría de los casos se encuentran en nivel de riesgo ${stats.alto > stats.medio ? 'alto' : (stats.medio > stats.bajo ? 'medio' : 'bajo')}.`,
+            'Se recomienda priorizar la gestión de documentos pendientes en casos con riesgo medio.'
+          ],
+          table: {
+            headers: ['Siniestro', 'Días', 'Riesgo', 'Técnico', 'Aseguradora'],
+            rows: filteredData.slice(0, 15).map(item => [
+              item.claim.numero_siniestro,
+              item.diasRestantes,
+              item.nivelRiesgo.toUpperCase(),
+              item.claim.tecnico_asignado || 'N/A',
+              item.claim.aseguradora
+            ]),
+            widths: [40, 20, 25, 40, 45]
+          }
+        }
+      ]
+    };
+
+    await exportExecutivePDF(reportData, options);
   };
 
   return (
@@ -80,14 +157,14 @@ const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => 
         />
       }
     >
-      <div className="space-y-6">
+      <div id="reporte-prescripcion-content" className="space-y-6">
         {/* Risk Level Stats */}
         <div className="grid grid-cols-3 gap-4">
           <button
             onClick={() => setRiesgoFilter(riesgoFilter === 'alto' ? 'todos' : 'alto')}
             className={`p-4 rounded-xl border-2 transition-all shadow-sm ${riesgoFilter === 'alto'
-                ? 'bg-rose-50 dark:bg-rose-500/20 border-rose-500'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-rose-400 dark:hover:border-rose-500/50 hover:bg-rose-50 dark:hover:bg-slate-700/50'
+              ? 'bg-rose-50 dark:bg-rose-500/20 border-rose-500'
+              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-rose-400 dark:hover:border-rose-500/50 hover:bg-rose-50 dark:hover:bg-slate-700/50'
               }`}
           >
             <div className="text-3xl mb-1">🔴</div>
@@ -98,8 +175,8 @@ const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => 
           <button
             onClick={() => setRiesgoFilter(riesgoFilter === 'medio' ? 'todos' : 'medio')}
             className={`p-4 rounded-xl border-2 transition-all shadow-sm ${riesgoFilter === 'medio'
-                ? 'bg-amber-50 dark:bg-amber-500/20 border-amber-500'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-slate-700/50'
+              ? 'bg-amber-50 dark:bg-amber-500/20 border-amber-500'
+              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-slate-700/50'
               }`}
           >
             <div className="text-3xl mb-1">🟡</div>
@@ -110,8 +187,8 @@ const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => 
           <button
             onClick={() => setRiesgoFilter(riesgoFilter === 'bajo' ? 'todos' : 'bajo')}
             className={`p-4 rounded-xl border-2 transition-all shadow-sm ${riesgoFilter === 'bajo'
-                ? 'bg-emerald-50 dark:bg-emerald-500/20 border-emerald-500'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:bg-emerald-50 dark:hover:bg-slate-700/50'
+              ? 'bg-emerald-50 dark:bg-emerald-500/20 border-emerald-500'
+              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:bg-emerald-50 dark:hover:bg-slate-700/50'
               }`}
           >
             <div className="text-3xl mb-1">🟢</div>
@@ -127,7 +204,7 @@ const ReportePrescripcion: React.FC<ReportePrescripcionProps> = ({ onBack }) => 
           showDateRange={false}
         />
 
-        <TablaPrescripcion data={filteredData} />
+        <TablaPrescripcion data={filteredData} onSelectClaim={onSelectClaim} />
       </div>
     </ReportLayout>
   );

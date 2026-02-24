@@ -66,6 +66,7 @@ const AppContent: React.FC = () => {
     async (updatedClaim: Claim) => {
       try {
         await updateClaim(updatedClaim);
+        setSelectedClaim(updatedClaim);
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
       } catch (err) {
@@ -80,11 +81,13 @@ const AppContent: React.FC = () => {
     async (newState: string) => {
       if (selectedClaim && currentUser) {
         try {
-          await changeClaimState(
+          const updated = await changeClaimState(
             selectedClaim.id_softseguros,
             newState as import('./types').InternalState,
             currentUser.name
           );
+          // Actualizar el claim seleccionado para reflejar el cambio en el modal
+          if (updated) setSelectedClaim(updated);
         } catch (err) {
           // Error ya manejado en contexto con rollback
           console.error('State change failed:', err);
@@ -154,7 +157,7 @@ const AppContent: React.FC = () => {
           />
         );
       case 'reports':
-        return <ReportsPage currentUser={currentUser} />;
+        return <ReportsPage currentUser={currentUser} onSelectClaim={setSelectedClaim} />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[60vh] text-slate-500">

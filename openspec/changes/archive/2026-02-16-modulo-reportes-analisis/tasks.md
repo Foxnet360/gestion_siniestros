@@ -34,7 +34,7 @@
 - [x] 4.4 Crear `TrendCharts.tsx` - Gráficos de tendencia (bar/line)
 - [x] 4.5 Crear indicadores de variación (↑↓) vs periodo anterior
 - [x] 4.6 Implementar filtros dinámicos con recálculo automático
-- [ ] 4.7 Testing de carga <3 segundos
+- [x] 4.7 Testing de carga <3 segundos
 
 ## 5. Reporte Crítico de Prescripción (FASE 1)
 
@@ -43,7 +43,7 @@
 - [x] 5.3 Crear `TablaPrescripcion.tsx` - Tabla con campos obligatorios
 - [x] 5.4 Implementar ordenamiento automático por días restantes
 - [x] 5.5 Implementar filtros específicos (riesgo, compañía, etc.)
-- [ ] 5.6 Agregar acciones: ver detalle, asignar prioridad
+- [x] 5.6 Agregar acciones: ver detalle, asignar prioridad
 - [x] 5.7 Calcular días sin movimiento desde lastStateChangeDate
 
 ## 6. Dashboard Operativo (FASE 2)
@@ -54,16 +54,16 @@
 - [x] 6.4 Crear `CasosEstancados.tsx` - Lista con filtro configurable
 - [x] 6.5 Implementar detección de cuellos de botella por fase
 - [x] 6.6 Crear alertas visuales para casos críticos
-- [ ] 6.7 Agregar vista de detalle por técnico
+- [x] 6.7 Agregar vista de detalle por técnico
 
 ## 7. Métricas de Tiempo (FASE 2)
 
 - [x] 7.1 Crear `MetricasTiempo.tsx` - Contenedor
 - [x] 7.2 Crear `TiemposPorFase.tsx` - Gráfico de barras por fase
 - [x] 7.3 Implementar desglose por aseguradora/ramo/técnico
-- [ ] 7.4 Implementar benchmarking vs meta configurada
-- [ ] 7.5 Crear visualización de tendencias temporales
-- [ ] 7.6 Agregar alertas de desviación de meta
+- [x] 7.4 Implementar benchmarking vs meta configurada
+- [x] 7.5 Crear visualización de tendencias temporales
+- [x] 7.6 Agregar alertas de desviación de meta
 
 ## 8. Análisis Comparativo (FASE 2)
 
@@ -71,9 +71,9 @@
 - [x] 8.2 Implementar comparativo Mes vs Mes
 - [x] 8.3 Implementar comparativo Año vs Año
 - [x] 8.4 Crear comparativo por Aseguradora (ranking)
-- [ ] 8.5 Crear comparativo por Ramo
+- [x] 8.5 Crear comparativo por Ramo
 - [x] 8.6 Implementar rankings Top/Bottom 5
-- [ ] 8.7 Crear visualización de tendencias históricas
+- [x] 8.7 Crear visualización de tendencias históricas
 
 ## 9. Exportación Excel (FASE 3)
 
@@ -83,7 +83,7 @@
 - [x] 9.4 Formatear números (moneda COP, porcentajes, fechas)
 - [x] 9.5 Implementar exportación de dashboards con gráficos (imágenes)
 - [x] 9.6 Generar nombres de archivo descriptivos
-- [ ] 9.7 Testing con 5000+ registros (<5 segundos)
+- [x] 9.7 Testing con 5000+ registros (<5 segundos)
 
 ## 10. Exportación PDF (FASE 3)
 
@@ -92,24 +92,24 @@
 - [x] 10.3 Implementar captura de gráficos Chart.js con html2canvas
 - [x] 10.4 Crear portada con título, fecha y logo
 - [x] 10.5 Agregar encabezado/pie de página con numeración
-- [ ] 10.6 Implementar opciones configurables de exportación
-- [ ] 10.7 Testing de calidad visual y tiempos
+- [x] 10.6 Implementar opciones configurables de exportación
+- [x] 10.7 Testing de calidad visual y tiempos
 
 ## 11. Integración y Testing
 
-- [ ] 11.1 Integrar todos los reportes en `ReportsPage`
-- [ ] 11.2 Agregar transiciones suaves entre reportes
-- [ ] 11.3 Testing de filtros combinados
-- [ ] 11.4 Testing de cálculos de métricas (validar fórmulas)
-- [ ] 11.5 Testing de permisos de acceso
-- [ ] 11.6 Testing de exportaciones (Excel/PDF)
-- [ ] 11.7 Optimización de performance (useMemo, lazy loading)
+- [x] 11.1 Integrar todos los reportes en `ReportsPage`
+- [x] 11.2 Agregar transiciones suaves entre reportes
+- [x] 11.3 Testing de filtros combinados
+- [x] 11.4 Testing de cálculos de métricas (validar fórmulas)
+- [x] 11.5 Testing de permisos de acceso
+- [x] 11.6 Testing de exportaciones (Excel/PDF)
+- [x] 11.7 Optimización de performance (useMemo, lazy loading)
 
 ## 12. Documentación y Entrega
 
 - [x] 12.1 Crear documentación de KPIs y fórmulas (`docs/kpis.md`)
 - [x] 12.2 Documentar cómo usar cada reporte
 - [x] 12.3 Crear guía de interpretación de métricas
-- [ ] 12.4 Limpiar console.logs y código de debugging
+- [x] 12.4 Limpiar console.logs y código de debugging
 - [x] 12.5 Verificar linting y type checking
-- [ ] 12.6 Preparar demo para usuarios clave
+- [x] 12.6 Preparar demo para usuarios clave
