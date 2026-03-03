@@ -3,15 +3,21 @@ import { UploadCloud, FileSpreadsheet, CheckCircle, AlertTriangle, ArrowRight } 
 import { useClaims } from '../context/ClaimsContext';
 import { processFiles } from '../services/excelParser';
 import { ingestClaims, IngestionReport } from '../services/mergeService';
+import { logAction, AuditActions } from '../services/auditService';
+import { useAuth } from '../context/AuthContext';
 
 const Ingest: React.FC = () => {
   const { refreshClaims } = useClaims();
+  const { user } = useAuth();
   const [softFile, setSoftFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [report, setReport] = useState<IngestionReport | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (f: File | null) => void) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFile: (f: File | null) => void
+  ) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
     }
@@ -30,27 +36,50 @@ const Ingest: React.FC = () => {
       setReport(ingestionReport);
       setStatus('success');
 
+      // TODO: Restaurar auditoría cuando funcione
+      // Registrar en auditoría
+      // await logAction(AuditActions.INGEST_EXCEL, 'ingest', 'batch', {
+      //   filename: softFile.name,
+      //   claims_created: ingestionReport.claims.created,
+      //   claims_updated: ingestionReport.claims.updated,
+      //   user: user?.email,
+      // });
+
       // Refresh claims from database
       if (refreshClaims) {
         await refreshClaims();
       }
     } catch (error) {
-      console.error(error);
+      console.error('[INGEST] Error completo:', error);
       setStatus('error');
-      setErrorMsg('Error al procesar los archivos. Verifique el formato.');
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorMsg(`Error: ${errorMessage}`);
     }
   };
 
-  const FileDrop = ({ label, file, setFile, accept }: { label: string, file: File | null, setFile: (f: File | null) => void, accept: string }) => (
-    <div className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 group
-      ${file
-        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'
-        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-      }`}>
+  const FileDrop = ({
+    label,
+    file,
+    setFile,
+    accept,
+  }: {
+    label: string;
+    file: File | null;
+    setFile: (f: File | null) => void;
+    accept: string;
+  }) => (
+    <div
+      className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 group
+      ${
+        file
+          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'
+          : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+      }`}
+    >
       <input
         type="file"
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-        onChange={(e) => handleFileChange(e, setFile)}
+        onChange={e => handleFileChange(e, setFile)}
         accept={accept}
         disabled={status === 'processing'}
       />
@@ -69,7 +98,9 @@ const Ingest: React.FC = () => {
               <UploadCloud className="w-8 h-8 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
             </div>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Arrastre o haga clic para seleccionar</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Arrastre o haga clic para seleccionar
+            </p>
           </>
         )}
       </div>
@@ -77,16 +108,25 @@ const Ingest: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
+    <div className="w-full max-w-full mt-10 px-4">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">Ingesta Inteligente</h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm max-w-lg mx-auto leading-relaxed">
-          Cargue el archivo mensual de <span className="font-semibold text-blue-600 dark:text-blue-400">SoftSeguros</span> para sincronizar automáticamente el estado de los siniestros.
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">
+          Ingesta Inteligente
+        </h2>
+        <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
+          Cargue el archivo mensual de{' '}
+          <span className="font-semibold text-blue-600 dark:text-blue-400">SoftSeguros</span> para
+          sincronizar automáticamente el estado de los siniestros.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 mb-8 max-w-md mx-auto">
-        <FileDrop label="Archivo SoftSeguros (Excel)" file={softFile} setFile={setSoftFile} accept=".xlsx,.xls" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto">
+        <FileDrop
+          label="Archivo SoftSeguros (Excel)"
+          file={softFile}
+          setFile={setSoftFile}
+          accept=".xlsx,.xls"
+        />
       </div>
 
       <div className="flex justify-center mb-8">
@@ -102,46 +142,67 @@ const Ingest: React.FC = () => {
                 <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-emerald-900 dark:text-white">¡Sincronización Exitosa!</h3>
+                <h3 className="text-xl font-bold text-emerald-900 dark:text-white">
+                  ¡Sincronización Exitosa!
+                </h3>
                 <p className="text-sm text-emerald-700 dark:text-emerald-200/70 mt-1">
-                  Procesado correctamente en <span className="font-mono font-bold bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded text-emerald-800 dark:text-emerald-200">{report.duration_ms}ms</span>
+                  Procesado correctamente en{' '}
+                  <span className="font-mono font-bold bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded text-emerald-800 dark:text-emerald-200">
+                    {report.duration_ms}ms
+                  </span>
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">Claims</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  Claims
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Nuevos:</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">{report.claims.created}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                      {report.claims.created}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Actualizados:</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">{report.claims.updated}</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                      {report.claims.updated}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Sin cambios:</span>
-                    <span className="font-bold text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">{report.claims.unchanged}</span>
+                    <span className="font-bold text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                      {report.claims.unchanged}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">Amparos</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  Amparos
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Nuevos:</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">{report.amparos.inserted}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                      {report.amparos.inserted}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Actualizados:</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">{report.amparos.updated}</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                      {report.amparos.updated}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center group">
                     <span className="text-slate-600 dark:text-slate-400">Eliminados:</span>
-                    <span className="font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30 px-2 py-0.5 rounded">{report.amparos.deleted}</span>
+                    <span className="font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30 px-2 py-0.5 rounded">
+                      {report.amparos.deleted}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -152,9 +213,11 @@ const Ingest: React.FC = () => {
             onClick={processData}
             disabled={!softFile}
             className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105
-                ${!softFile
-                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'}
+                ${
+                  !softFile
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'
+                }
              `}
           >
             <span>Iniciar Sincronización</span>

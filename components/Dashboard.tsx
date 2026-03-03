@@ -42,7 +42,7 @@ const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim, onChangeVi
   const prescriptionRisks = usePrescriptionRisks(claims);
 
   // Obtener el término de búsqueda actual y estado de búsqueda
-  const { filters, isSearching } = useClaims();
+  const { filters, isSearching, users } = useClaims();
   const hasSearchTerm = filters.searchTerm && filters.searchTerm.trim().length > 0;
   const searchTermLength = filters.searchTerm?.trim().length || 0;
 
@@ -96,7 +96,7 @@ const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim, onChangeVi
           </div>
           {searchTermLength >= 3 && claims.length > 0 ? (
             <>
-              <ClaimsTable claims={paginatedItems} onSelectClaim={onSelectClaim} />
+              <ClaimsTable claims={paginatedItems} onSelectClaim={onSelectClaim} users={users} />
               {totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}
@@ -224,7 +224,9 @@ const Dashboard: React.FC<DashboardProps> = ({ claims, onSelectClaim, onChangeVi
               </span>
             </div>
           </div>
-          <ClaimsTable claims={paginatedItems} onSelectClaim={onSelectClaim} />
+          <div className="overflow-x-auto">
+            <ClaimsTable claims={paginatedItems} onSelectClaim={onSelectClaim} users={users} />
+          </div>
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}

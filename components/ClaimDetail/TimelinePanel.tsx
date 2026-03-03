@@ -41,7 +41,7 @@ export const TimelinePanel: React.FC<TimelinePanelProps> = ({ claim }) => {
           </h3>
         </div>
         <p className="text-xs text-blue-600/70 dark:text-blue-400/70">
-          Solo lectura - Datos de Softseguros
+          Historial de seguimientos y novedades
         </p>
         <p className="text-xs text-slate-500 mt-1">
           {allEvents.length} {allEvents.length === 1 ? 'registro' : 'registros'}

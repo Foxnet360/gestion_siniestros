@@ -24,15 +24,28 @@ const parseDate = (value: any): string | null => {
 
   // String DD/MM/YYYY or YYYY-MM-DD
   if (typeof value === 'string') {
-    // Try ISO first
-    let date = new Date(value);
-    if (!isNaN(date.getTime())) return date.toISOString();
+    // Clean the string
+    const cleanValue = value.trim();
+
+    // Try ISO first (YYYY-MM-DD)
+    let date = new Date(cleanValue);
+    if (!isNaN(date.getTime()) && cleanValue.match(/^\d{4}-\d{2}-\d{2}/)) {
+      return date.toISOString();
+    }
 
     // Try DD/MM/YYYY
-    const parts = value.split('/');
+    const parts = cleanValue.split('/');
     if (parts.length === 3) {
       // DD/MM/YYYY
       date = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+      if (isValid(date)) return date.toISOString();
+    }
+
+    // Try alternative formats
+    // Format: DD-MM-YYYY
+    const dashParts = cleanValue.split('-');
+    if (dashParts.length === 3 && dashParts[0].length === 2) {
+      date = new Date(Number(dashParts[2]), Number(dashParts[1]) - 1, Number(dashParts[0]));
       if (isValid(date)) return date.toISOString();
     }
   }
@@ -73,9 +86,17 @@ const parseString = (val: any): string => {
 
 export const processFiles = async (softFile: File, gestionFile?: File): Promise<ParseResult> => {
   console.log('[EXCEL PARSER] Starting file processing...');
+  console.log('[EXCEL PARSER] File name:', softFile.name);
+  console.log('[EXCEL PARSER] File type:', softFile.type);
+  console.log('[EXCEL PARSER] File size:', softFile.size);
+
   const workbook = await readWorkbook(softFile);
 
   console.log('[EXCEL PARSER] Sheet names found:', workbook.SheetNames);
+
+  if (workbook.SheetNames.length === 0) {
+    throw new Error('El archivo Excel no contiene hojas válidas');
+  }
 
   // Parse Siniestros sheet (first sheet or named "Siniestros")
   const siniestrosSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -148,21 +169,37 @@ const readWorkbook = (file: File): Promise<XLSX.WorkBook> => {
 
 const parseSiniestros = (softData: any[], gestionData: any[]): Partial<Claim>[] => {
   console.log(`[SINIESTROS] Processing ${softData.length} rows`);
-  if (softData.length > 0) {
-    const columns = Object.keys(softData[0]);
-    console.log('[SINIESTROS] First row columns:', columns);
-    console.log('[SINIESTROS] First row IDENTIFICADOR:', softData[0]['IDENTIFICADOR']);
 
-    // Check for compañía column
-    const companiaColumn = columns.find(
-      col => col.toUpperCase().includes('COMPA') || col.toUpperCase().includes('COMPANIA')
-    );
-    console.log('[SINIESTROS] Compañía column found:', companiaColumn);
-    console.log(
-      '[SINIESTROS] Compañía value:',
-      companiaColumn ? softData[0][companiaColumn] : 'NOT FOUND'
+  if (softData.length === 0) {
+    throw new Error('El archivo no contiene datos en la hoja de Siniestros');
+  }
+
+  const columns = Object.keys(softData[0]);
+  console.log('[SINIESTROS] First row columns:', columns);
+
+  // Validate required columns exist
+  const requiredColumns = ['IDENTIFICADOR'];
+  const missingColumns = requiredColumns.filter(
+    col => !columns.some(c => c.toUpperCase() === col.toUpperCase())
+  );
+
+  if (missingColumns.length > 0) {
+    throw new Error(
+      `Columnas requeridas faltantes: ${missingColumns.join(', ')}. Columnas encontradas: ${columns.join(', ')}`
     );
   }
+
+  console.log('[SINIESTROS] First row IDENTIFICADOR:', softData[0]['IDENTIFICADOR']);
+
+  // Check for compañía column
+  const companiaColumn = columns.find(
+    col => col.toUpperCase().includes('COMPA') || col.toUpperCase().includes('COMPANIA')
+  );
+  console.log('[SINIESTROS] Compañía column found:', companiaColumn);
+  console.log(
+    '[SINIESTROS] Compañía value:',
+    companiaColumn ? softData[0][companiaColumn] : 'NOT FOUND'
+  );
 
   // Index Gestion by IDENTIFICADOR
   const gestionMap = new Map();

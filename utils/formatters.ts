@@ -31,7 +31,28 @@ export const formatDate = (
 ): string => {
   if (!date) return '-';
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  let dateObj: Date;
+
+  if (typeof date === 'string') {
+    // Si la fecha viene en formato YYYY-MM-DD (sin hora), interpretarla como fecha local
+    // para evitar problemas de zona horaria que restan un día
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month, day] = date.split('-').map(Number);
+      dateObj = new Date(year, month - 1, day);
+    }
+    // Si la fecha viene con timezone UTC (ej: "2023-09-13 00:00:00+00" o "2023-09-13T00:00:00Z")
+    // extraer solo la parte de la fecha y tratarla como fecha local
+    else if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:?\d{2}|Z)$/.test(date)) {
+      // Extraer YYYY-MM-DD de la fecha
+      const datePart = date.substring(0, 10);
+      const [year, month, day] = datePart.split('-').map(Number);
+      dateObj = new Date(year, month - 1, day);
+    } else {
+      dateObj = new Date(date);
+    }
+  } else {
+    dateObj = date;
+  }
 
   if (isNaN(dateObj.getTime())) {
     return 'Fecha inválida';

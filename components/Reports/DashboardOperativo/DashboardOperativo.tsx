@@ -8,11 +8,32 @@ import TechnicianDetailModal from './TechnicianDetailModal';
 import type { Claim } from '../../../types';
 import { useClaims } from '../../../context/ClaimsContext';
 import { useProductividadTecnico } from '../../../hooks/reports/useProductividadTecnico';
+
+// Helper para parsear fechas correctamente evitando problemas de zona horaria
+const parseDate = (dateStr: string): Date => {
+  // Si la fecha viene en formato YYYY-MM-DD (sin hora), interpretarla como fecha local
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  // Si la fecha viene con timezone UTC (ej: "2023-09-13 00:00:00+00" o "2023-09-13T00:00:00Z")
+  // extraer solo la parte de la fecha y tratarla como fecha local
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:?\d{2}|Z)$/.test(dateStr)) {
+    const datePart = dateStr.substring(0, 10);
+    const [year, month, day] = datePart.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(dateStr);
+};
 import { useCasosEstancados } from '../../../hooks/reports/useCasosEstancados';
 import { useTiemposPorFase } from '../../../hooks/reports/useTiemposPorFase';
 import { exportToExcel } from '../../../services/reports/excelExport';
 import { exportToPDF, exportExecutivePDF } from '../../../services/reports/pdfExport';
-import type { ReportFilters as ReportFiltersType, ExportOptions, ExecutiveReportData } from '../../../types/reports';
+import type {
+  ReportFilters as ReportFiltersType,
+  ExportOptions,
+  ExecutiveReportData,
+} from '../../../types/reports';
 import { Bar } from 'react-chartjs-2';
 import { CHART_COLORS, barChartOptions } from '../../../utils/chartConfig';
 
@@ -38,24 +59,32 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
   const [diasEstancado, setDiasEstancado] = useState(30);
 
   // Get filter options
-  const filterOptions = useMemo(() => ({
-    ramo: [...new Set(claims.map(c => c.ramo))].filter(Boolean).sort(),
-    aseguradora: [...new Set(claims.map(c => c.aseguradora))].filter(Boolean).sort(),
-    tecnico: [...new Set(claims.map(c => c.tecnico_asignado))].filter(Boolean).sort(),
-  }), [claims]);
+  const filterOptions = useMemo(
+    () => ({
+      ramo: [...new Set(claims.map(c => c.ramo))].filter(Boolean).sort(),
+      aseguradora: [...new Set(claims.map(c => c.aseguradora))].filter(Boolean).sort(),
+      tecnico: [...new Set(claims.map(c => c.tecnico_asignado))].filter(Boolean).sort(),
+    }),
+    [claims]
+  );
 
   const filteredClaims = useMemo(() => {
-    return claims.filter((claim) => {
+    return claims.filter(claim => {
       // Date Range Filter
       if (filters.dateRange) {
-        const date = claim.fecha_aviso ? new Date(claim.fecha_aviso) : null;
+        const date = claim.fecha_aviso ? parseDate(claim.fecha_aviso) : null;
         if (!date || date < filters.dateRange.start || date > filters.dateRange.end) return false;
       }
 
       // Dimension Filters
       if (filters.ramo.length > 0 && !filters.ramo.includes(claim.ramo)) return false;
-      if (filters.aseguradora.length > 0 && !filters.aseguradora.includes(claim.aseguradora)) return false;
-      if (filters.tecnico.length > 0 && (!claim.tecnico_asignado || !filters.tecnico.includes(claim.tecnico_asignado))) return false;
+      if (filters.aseguradora.length > 0 && !filters.aseguradora.includes(claim.aseguradora))
+        return false;
+      if (
+        filters.tecnico.length > 0 &&
+        (!claim.tecnico_asignado || !filters.tecnico.includes(claim.tecnico_asignado))
+      )
+        return false;
       if (filters.estado.length > 0 && !filters.estado.includes(claim.estado_interno)) return false;
 
       return true;
@@ -70,14 +99,16 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
   // Chart data for bottlenecks
   const bottleneckData = {
     labels: tiemposPorFase.map(t => `Fase ${t.faseId}`),
-    datasets: [{
-      label: 'Días promedio',
-      data: tiemposPorFase.map(t => t.tiempoPromedio),
-      backgroundColor: tiemposPorFase.map(t =>
-        t.tiempoPromedio > 15 ? CHART_COLORS.danger : CHART_COLORS.accent1
-      ),
-      borderRadius: 4,
-    }],
+    datasets: [
+      {
+        label: 'Días promedio',
+        data: tiemposPorFase.map(t => t.tiempoPromedio),
+        backgroundColor: tiemposPorFase.map(t =>
+          t.tiempoPromedio > 15 ? CHART_COLORS.danger : CHART_COLORS.accent1
+        ),
+        borderRadius: 4,
+      },
+    ],
   };
 
   const technicianClaims = useMemo(() => {
@@ -93,23 +124,33 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
     const exportData = [
       {
         sheetName: 'Productividad',
-        headers: ['Técnico', 'Activos', 'Cerrados', 'Tiempo Promedio', '% Recuperación', 'Estancados'],
+        headers: [
+          'Técnico',
+          'Activos',
+          'Cerrados',
+          'Tiempo Promedio',
+          '% Recuperación',
+          'Estancados',
+        ],
         data: productividad.map(item => [
           item.tecnico,
           item.casosActivos,
           item.casosCerrados,
           item.tiempoPromedioCierre,
           item.porcentajeRecuperacion / 100,
-          item.casosEstancados
+          item.casosEstancados,
         ]),
         summary: {
           title: `Reporte de Productividad - ${period}`,
           kpis: [
             { label: 'Total Técnicos', value: productividad.length },
-            { label: 'Casos Activos', value: productividad.reduce((sum, p) => sum + p.casosActivos, 0) },
-            { label: 'Casos Estancados', value: casosEstancados.length }
-          ]
-        }
+            {
+              label: 'Casos Activos',
+              value: productividad.reduce((sum, p) => sum + p.casosActivos, 0),
+            },
+            { label: 'Casos Estancados', value: casosEstancados.length },
+          ],
+        },
       },
       {
         sheetName: 'Casos Estancados',
@@ -118,9 +159,9 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
           item.claim.numero_siniestro,
           item.claim.asegurado,
           item.diasSinMovimiento,
-          item.claim.tecnico_asignado || 'Sin Asignar'
+          item.claim.tecnico_asignado || 'Sin Asignar',
         ]),
-      }
+      },
     ];
 
     exportToExcel(exportData, 'Dashboard_Operativo', options);
@@ -134,37 +175,62 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
       period: 'Situación Actual',
       highlights: [
         { label: 'Técnicos Activos', value: productividad.length.toString(), type: 'neutral' },
-        { label: 'Casos Estancados', value: casosEstancados.length.toString(), type: casosEstancados.length > 5 ? 'negative' : 'positive' },
-        { label: 'Tiempo Promedio Fase', value: `${(tiemposPorFase.reduce((sum, t) => sum + t.tiempoPromedio, 0) / tiemposPorFase.length).toFixed(1)} días`, type: 'neutral' },
+        {
+          label: 'Casos Estancados',
+          value: casosEstancados.length.toString(),
+          type: casosEstancados.length > 5 ? 'negative' : 'positive',
+        },
+        {
+          label: 'Tiempo Promedio Fase',
+          value: `${(tiemposPorFase.reduce((sum, t) => sum + t.tiempoPromedio, 0) / tiemposPorFase.length).toFixed(1)} días`,
+          type: 'neutral',
+        },
       ],
       sections: [
         {
           title: 'Análisis de Cuellos de Botella',
-          description: 'Identificación de las fases del proceso que presentan mayores tiempos de espera.',
+          description:
+            'Identificación de las fases del proceso que presentan mayores tiempos de espera.',
           chartId: 'chart-bottlenecks',
           insights: [
-            ...tiemposPorFase.filter(t => t.tiempoPromedio > 15).map(t => `La Fase ${t.faseId} es un cuello de botella crítico (${t.tiempoPromedio.toFixed(1)} días).`),
-            `El tiempo promedio total de gestión se estima en ${tiemposPorFase.reduce((sum, t) => sum + t.tiempoPromedio, 0).toFixed(0)} días laborables.`
+            ...tiemposPorFase
+              .filter(t => t.tiempoPromedio > 15)
+              .map(
+                t =>
+                  `La Fase ${t.faseId} es un cuello de botella crítico (${t.tiempoPromedio.toFixed(1)} días).`
+              ),
+            `El tiempo promedio total de gestión se estima en ${tiemposPorFase.reduce((sum, t) => sum + t.tiempoPromedio, 0).toFixed(0)} días laborables.`,
           ],
           table: {
             headers: ['Fase', 'Descripción', 'Tiempo Promedio', 'Casos'],
-            rows: tiemposPorFase.map(t => [`Fase ${t.faseId}`, t.fase, `${t.tiempoPromedio.toFixed(1)} d`, t.casosCount])
-          }
+            rows: tiemposPorFase.map(t => [
+              `Fase ${t.faseId}`,
+              t.fase,
+              `${t.tiempoPromedio.toFixed(1)} d`,
+              t.casosCount,
+            ]),
+          },
         },
         {
           title: 'Productividad por Técnico',
           description: 'Desempeño individual y carga de casos por cada profesional asignado.',
           insights: [
             `El técnico con mayor eficiencia en cierres es ${[...productividad].sort((a, b) => b.casosCerrados - a.casosCerrados)[0]?.tecnico || 'N/A'}.`,
-            `Existen ${casosEstancados.length} casos sin movimiento por más de ${diasEstancado} días que requieren intervención.`
+            `Existen ${casosEstancados.length} casos sin movimiento por más de ${diasEstancado} días que requieren intervención.`,
           ],
           table: {
             headers: ['Técnico', 'Activos', 'Cerrados', 'Tiempo Cierre', '% Recup.'],
-            rows: productividad.map(p => [p.tecnico, p.casosActivos, p.casosCerrados, `${p.tiempoPromedioCierre.toFixed(1)} d`, `${p.porcentajeRecuperacion.toFixed(1)}%`]),
-            widths: [45, 20, 20, 30, 25]
-          }
-        }
-      ]
+            rows: productividad.map(p => [
+              p.tecnico,
+              p.casosActivos,
+              p.casosCerrados,
+              `${p.tiempoPromedioCierre.toFixed(1)} d`,
+              `${p.porcentajeRecuperacion.toFixed(1)}%`,
+            ]),
+            widths: [45, 20, 20, 30, 25],
+          },
+        },
+      ],
     };
 
     await exportExecutivePDF(reportData, options);
@@ -175,12 +241,7 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
       title="Dashboard Operativo"
       description="Productividad del equipo y cuellos de botella"
       onBack={onBack}
-      actions={
-        <ExportButtons
-          onExportExcel={handleExportExcel}
-          onExportPDF={handleExportPDF}
-        />
-      }
+      actions={<ExportButtons onExportExcel={handleExportExcel} onExportPDF={handleExportPDF} />}
     >
       <div id="dashboard-operativo-content" className="space-y-6">
         <ReportFilters
@@ -190,17 +251,19 @@ const DashboardOperativo: React.FC<DashboardOperativoProps> = ({ onBack, onSelec
         />
 
         {/* Bottleneck Chart */}
-        <div id="chart-bottlenecks" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tiempos por Fase (Cuellos de Botella)</h3>
+        <div
+          id="chart-bottlenecks"
+          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm"
+        >
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+            Tiempos por Fase (Cuellos de Botella)
+          </h3>
           <div className="h-64">
             <Bar data={bottleneckData} options={barChartOptions} />
           </div>
         </div>
 
-        <ProductividadTecnicos
-          data={productividad}
-          onSelectTechnician={setSelectedTechnician}
-        />
+        <ProductividadTecnicos data={productividad} onSelectTechnician={setSelectedTechnician} />
 
         <CasosEstancados
           data={casosEstancados}

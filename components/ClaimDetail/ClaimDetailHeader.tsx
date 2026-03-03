@@ -1,112 +1,165 @@
 import React from 'react';
 import { Claim } from '../../types';
-import { Save, Shield, X, CheckCircle2, Calendar, Download } from 'lucide-react';
+import { Shield, X, CheckCircle2, Calendar, Download } from 'lucide-react';
 import { formatDate } from '../../utils/formatters';
+import * as XLSX from 'xlsx';
 
 interface ClaimDetailHeaderProps {
   claim: Claim;
   onClose: () => void;
-  onSave: () => void;
 }
 
 /**
- * Exporta la bitácora y datos del siniestro a CSV
+ * Exporta la bitácora y datos completos del siniestro a Excel (.xlsx)
+ * Incluye todos los campos de SoftSeguros e información interna
  */
-const exportBitacoraToCSV = (claim: Claim) => {
+const exportBitacoraToExcel = (claim: Claim) => {
   const headers = [
+    // Información Principal
     'N° Siniestro',
     'N° Siniestro Compañía',
-    'Tipo',
-    'Asegurado',
-    'Documento',
+    'Tipo Siniestro',
+    'Estado SoftSeguros',
+    'Estado Interno',
+    'Usuario Registro',
+    'Placa Bien',
+
+    // Asegurado
+    'Nombre Asegurado',
+    'Documento Asegurado',
+    'Email Principal',
+    'Celular Principal',
+
+    // Póliza y Aseguradora
     'Póliza',
     'Aseguradora',
     'Ramo',
+    'Vendedor',
+    'Técnico Asignado',
+    'Aliado Origen',
+
+    // Fechas
     'Fecha Siniestro',
     'Fecha Aviso',
-    'Fecha Radicación',
-    'Proveedor',
-    'Estado',
-    'Finalizado',
+    'Fecha Notificación Aseguradora',
     'Fecha Finalización',
+    'Finalizado',
+
+    // Valores
+    'Monto Reclamo',
+    'Valor Deducible',
+    'Valor Indemnización',
+
+    // Gestión
+    'Último Seguimiento Raw',
+    'Estado Gestión SoftSeguros',
+    'Próximo Seguimiento',
+    'Prioridad',
+
+    // Bitácora Timeline
     'Timeline Fecha',
     'Timeline Autor',
     'Timeline Texto',
   ];
 
-  const rows: string[] = [];
+  const formatCurrency = (value: number | undefined | null): number | string => {
+    if (value === undefined || value === null || value === 0) return '';
+    return value;
+  };
+
+  const rows: (string | number)[][] = [];
+
+  // Helper function to create a data row
+  const createDataRow = (
+    timelineDate: string = '',
+    timelineAuthor: string = '',
+    timelineText: string = ''
+  ): (string | number)[] => {
+    return [
+      // Información Principal
+      claim.numero_siniestro,
+      claim.numero_siniestro_compania || '',
+      claim.tipo_siniestro || '',
+      claim.estado_softseguros || '',
+      claim.estado_interno,
+      claim.usuario_registro || '',
+      claim.placa_bien || '',
+
+      // Asegurado
+      claim.asegurado,
+      claim.documento_asegurado || '',
+      claim.email_principal || '',
+      claim.celular_principal || '',
+
+      // Póliza y Aseguradora
+      claim.poliza,
+      claim.aseguradora,
+      claim.ramo,
+      claim.vendedor || '',
+      claim.tecnico_asignado || '',
+      claim.aliado_origen || '',
+
+      // Fechas
+      claim.fecha_ocurrencia || '',
+      claim.fecha_aviso || '',
+      claim.fecha_notificacion_aseguradora || '',
+      claim.fecha_finalizacion || '',
+      claim.finalizado ? 'Sí' : 'No',
+
+      // Valores
+      formatCurrency(claim.monto_reclamo),
+      formatCurrency(claim.valor_deducible),
+      formatCurrency(claim.valor_indemnizacion),
+
+      // Gestión
+      claim.ultimo_seguimiento_raw || '',
+      claim.estado_gestion_softseguros || '',
+      claim.proximo_seguimiento || '',
+      claim.prioridad || '',
+
+      // Timeline
+      timelineDate,
+      timelineAuthor,
+      timelineText,
+    ];
+  };
 
   // Create a row for each timeline event
   if (claim.timeline && claim.timeline.length > 0) {
     claim.timeline.forEach(event => {
-      const row = [
-        claim.numero_siniestro,
-        claim.numero_siniestro_compania || '',
-        claim.tipo_siniestro || '',
-        claim.asegurado,
-        claim.documento_asegurado || '',
-        claim.poliza,
-        claim.aseguradora,
-        claim.ramo,
-        claim.fecha_ocurrencia || '',
-        claim.fecha_aviso || '',
-        claim.fecha_notificacion_aseguradora || '',
-        claim.proveedor_asignado || '',
-        claim.estado_interno,
-        claim.finalizado ? 'Sí' : 'No',
-        claim.fecha_finalizacion || '',
-        event.date,
-        event.author,
-        event.text,
-      ];
-      rows.push(row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','));
+      rows.push(createDataRow(event.date, event.author, event.text));
     });
   } else {
     // Single row with no timeline data
-    const row = [
-      claim.numero_siniestro,
-      claim.numero_siniestro_compania || '',
-      claim.tipo_siniestro || '',
-      claim.asegurado,
-      claim.documento_asegurado || '',
-      claim.poliza,
-      claim.aseguradora,
-      claim.ramo,
-      claim.fecha_ocurrencia || '',
-      claim.fecha_aviso || '',
-      claim.fecha_notificacion_aseguradora || '',
-      claim.proveedor_asignado || '',
-      claim.estado_interno,
-      claim.finalizado ? 'Sí' : 'No',
-      claim.fecha_finalizacion || '',
-      '',
-      '',
-      '',
-    ];
-    rows.push(row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','));
+    rows.push(createDataRow());
   }
 
-  const csvContent = [headers.join(','), ...rows].join('\n');
-  // Add BOM for Excel UTF-8 support and proper accent characters
-  const BOM = '\uFEFF';
-  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute(
-    'download',
-    `bitacora_${claim.numero_siniestro}_${new Date().toISOString().split('T')[0]}.csv`
+  // Create worksheet
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // Set column widths for better readability
+  const colWidths = headers.map((header, index) => {
+    const maxLength = Math.max(header.length, ...rows.map(row => String(row[index] || '').length));
+    return { wch: Math.min(Math.max(maxLength, 10), 50) };
+  });
+  ws['!cols'] = colWidths;
+
+  // Create workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bitácora');
+
+  // Generate Excel file
+  XLSX.writeFile(
+    wb,
+    `bitacora_${claim.numero_siniestro}_${new Date().toISOString().split('T')[0]}.xlsx`
   );
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 };
 
 /**
  * Header del modal de ClaimDetail
  * Muestra información identificadora y acciones principales
  */
-export const ClaimDetailHeader: React.FC<ClaimDetailHeaderProps> = ({ claim, onClose, onSave }) => {
+export const ClaimDetailHeader: React.FC<ClaimDetailHeaderProps> = ({ claim, onClose }) => {
   return (
     <div className="h-16 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 bg-white dark:bg-slate-800/50">
       <div className="flex items-center space-x-4">
@@ -141,19 +194,12 @@ export const ClaimDetailHeader: React.FC<ClaimDetailHeaderProps> = ({ claim, onC
 
       <div className="flex items-center space-x-3">
         <button
-          onClick={() => exportBitacoraToCSV(claim)}
+          onClick={() => exportBitacoraToExcel(claim)}
           className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          title="Exportar bitácora y datos a CSV"
+          title="Exportar bitácora y datos a Excel"
         >
           <Download className="w-4 h-4" />
           <span>Exportar</span>
-        </button>
-        <button
-          onClick={onSave}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          <Save className="w-4 h-4" />
-          <span>Guardar</span>
         </button>
         <button
           onClick={onClose}

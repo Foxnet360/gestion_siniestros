@@ -123,13 +123,20 @@ export const MOCK_USERS: User[] = [
   },
   {
     id: 'u2',
-    name: 'Maria Gerente',
+    name: 'Maria Administradora',
     email: 'admin@softseguros.com',
     role: 'ADMIN',
-    initials: 'MG',
+    initials: 'MA',
   },
   {
     id: 'u3',
+    name: 'Carlos Gerente',
+    email: 'gerente@softseguros.com',
+    role: 'GERENTE',
+    initials: 'CG',
+  },
+  {
+    id: 'u4',
     name: 'Seguros Bolivar',
     email: 'contacto@bolivar.com',
     role: 'ALIADO',

@@ -15,8 +15,11 @@ import {
   StateHistoryEntry,
   TimelineEvent,
 } from '../types';
-import { MOCK_USERS, WORKFLOW_PHASES } from '../constants';
+import { WORKFLOW_PHASES } from '../constants';
 import { supabase } from '../lib/supabase';
+import { fromDbFormat, fromDbFormatArray, toDbFormat } from '../lib/dbMapping';
+import { useAuth } from './AuthContext';
+import { logAction, AuditActions } from '../services/auditService';
 
 export interface AppError {
   type: 'update' | 'state_change' | 'fetch' | 'ingest';
@@ -36,7 +39,6 @@ interface ClaimsContextType {
   searchResults: Claim[];
 
   setClaims: (claims: Claim[]) => void;
-  setCurrentUser: (user: User | null) => void;
   setFilters: (filters: FilterState) => void;
   updateClaim: (updatedClaim: Claim) => Promise<void>;
   changeClaimState: (
@@ -56,9 +58,9 @@ interface ClaimsContextType {
 const ClaimsContext = createContext<ClaimsContextType | undefined>(undefined);
 
 export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user: currentUser } = useAuth();
   const [claims, setClaims] = useState<Claim[]>([]);
-  const [users] = useState<User[]>(MOCK_USERS);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Claim[]>([]);
@@ -68,7 +70,7 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     ramo: [],
     aseguradora: [],
     estado: [],
-    poliza: [],
+    asegurado: [],
     aliado: [],
   });
 
@@ -113,9 +115,12 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         console.log('✅ Resultados de búsqueda:', data?.length || 0);
 
+        // Convertir de formato BD (lowercase) a formato Claim (camelCase)
+        const dataFormatted = data ? fromDbFormatArray(data) : [];
+
         // Load relations for search results
-        if (data && data.length > 0) {
-          const claimIds = data.map(c => c.id_softseguros);
+        if (dataFormatted.length > 0) {
+          const claimIds = dataFormatted.map(c => c.id_softseguros);
 
           const [{ data: allHistory }, { data: allTimeline }] = await Promise.all([
             supabase.from('state_history').select('*').in('claim_id', claimIds),
@@ -139,8 +144,8 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             timelineMap.get(t.claim_id).push(t);
           });
 
-          const resultsWithRelations = data.map(claim => ({
-            ...(claim as Claim),
+          const resultsWithRelations = dataFormatted.map(claim => ({
+            ...claim,
             stateHistory: historyMap.get(claim.id_softseguros) || [],
             timeline: timelineMap.get(claim.id_softseguros) || [],
           }));
@@ -163,12 +168,37 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     [addError]
   );
 
+  // Fetch users from Supabase
+  const fetchUsers = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.from('users').select('*').eq('is_active', true);
+
+      if (error) throw error;
+
+      setUsers(
+        data?.map(u => ({
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          role: u.role,
+          initials: u.initials,
+          aliadoId: u.aliado_id,
+          isActive: u.is_active,
+        })) || []
+      );
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    }
+  }, []);
+
   // Fetch claims from Supabase
   const fetchClaims = useCallback(async () => {
     setIsLoading(true);
     try {
+      // Cargar usuarios primero
+      await fetchUsers();
+
       console.log('🔍 Fetching claims from Supabase...');
-      console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
 
       // Intentar primero solo con claims (sin relaciones)
       const { data: claimsData, error: claimsError } = await supabase
@@ -181,11 +211,14 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         throw claimsError;
       }
 
-      console.log('✅ Claims recibidos:', claimsData?.length || 0);
+      // Convertir de formato BD (lowercase) a formato Claim (camelCase)
+      const claimsDataFormatted = claimsData ? fromDbFormatArray(claimsData) : [];
+
+      console.log('✅ Claims recibidos:', claimsDataFormatted?.length || 0);
 
       // DEBUG: Verificar campos del primer claim
-      if (claimsData && claimsData.length > 0) {
-        const firstClaim = claimsData[0];
+      if (claimsDataFormatted.length > 0) {
+        const firstClaim = claimsDataFormatted[0];
         console.log('🔍 Primer claim:', {
           id: firstClaim.id_softseguros,
           numero_siniestro: firstClaim.numero_siniestro,
@@ -197,11 +230,11 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
       }
 
-      if (claimsData && claimsData.length > 0) {
-        console.log('📊 Cargando relaciones para', claimsData.length, 'claims...');
+      if (claimsDataFormatted.length > 0) {
+        console.log('📊 Cargando relaciones para', claimsDataFormatted.length, 'claims...');
 
         // Obtener todos los IDs de claims
-        const claimIds = claimsData.map(c => c.id_softseguros);
+        const claimIds = claimsDataFormatted.map(c => c.id_softseguros);
 
         // Cargar TODOS los state_history en una sola consulta
         const { data: allHistory } = await supabase
@@ -239,8 +272,8 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         // Combinar claims con sus relaciones
-        const claimsWithRelations = claimsData.map(claim => ({
-          ...(claim as Claim),
+        const claimsWithRelations = claimsDataFormatted.map(claim => ({
+          ...claim,
           stateHistory: historyMap.get(claim.id_softseguros) || [],
           timeline: timelineMap.get(claim.id_softseguros) || [],
         }));
@@ -262,17 +295,19 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [addError]);
 
   useEffect(() => {
-    fetchClaims();
-  }, [fetchClaims]);
+    if (currentUser) {
+      fetchClaims();
+    }
+  }, [fetchClaims, currentUser]);
 
   // Auto-search when searchTerm changes
   useEffect(() => {
-    if (filters.searchTerm && filters.searchTerm.trim().length >= 3) {
+    if (currentUser && filters.searchTerm && filters.searchTerm.trim().length >= 3) {
       searchClaimsServerSide(filters.searchTerm);
     } else {
       setSearchResults([]);
     }
-  }, [filters.searchTerm, searchClaimsServerSide]);
+  }, [filters.searchTerm, searchClaimsServerSide, currentUser]);
 
   const refreshClaims = useCallback(async () => {
     await fetchClaims();
@@ -297,10 +332,15 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         const { error } = await supabase
           .from('claims')
-          .update(claimData)
+          .update(toDbFormat(claimData))
           .eq('id_softseguros', updatedClaim.id_softseguros);
 
         if (error) throw error;
+
+        // Registrar en auditoría
+        await logAction(AuditActions.UPDATE_CLAIM, 'claim', updatedClaim.id_softseguros, {
+          numero_siniestro: updatedClaim.numero_siniestro,
+        });
       } catch (err) {
         console.error('Error persisting claim:', err);
         // Rollback
@@ -397,11 +437,13 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       try {
         const { error: claimError } = await supabase
           .from('claims')
-          .update({
-            estado_interno: updatedClaim.estado_interno,
-            lastStateChangeDate: updatedClaim.lastStateChangeDate,
-            updatedAt: updatedClaim.updatedAt,
-          })
+          .update(
+            toDbFormat({
+              estado_interno: updatedClaim.estado_interno,
+              lastStateChangeDate: updatedClaim.lastStateChangeDate,
+              updatedAt: updatedClaim.updatedAt,
+            })
+          )
           .eq('id_softseguros', claimId);
 
         if (claimError) throw claimError;
@@ -416,6 +458,13 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         await supabase.from('timeline').insert(timelineToPersist);
+
+        // Registrar en auditoría
+        await logAction(AuditActions.CHANGE_CLAIM_STATE, 'claim', claimId, {
+          old_state: claim.estado_interno,
+          new_state: newState,
+          numero_siniestro: claim.numero_siniestro,
+        });
 
         return updatedClaim;
       } catch (err) {
@@ -491,7 +540,8 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (filters.aseguradora.length > 0 && !filters.aseguradora.includes(claim.aseguradora))
         return false;
       if (filters.estado.length > 0 && !filters.estado.includes(claim.estado_interno)) return false;
-      if (filters.poliza.length > 0 && !filters.poliza.includes(claim.poliza)) return false;
+      if (filters.asegurado.length > 0 && !filters.asegurado.includes(claim.asegurado))
+        return false;
       if (
         filters.aliado.length > 0 &&
         claim.aliado_origen &&
@@ -515,7 +565,6 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         isSearching,
         searchResults,
         setClaims,
-        setCurrentUser,
         setFilters,
         updateClaim,
         changeClaimState,

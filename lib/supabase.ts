@@ -4,17 +4,24 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase environment variables');
+  console.error('Missing Supabase environment variables');
 }
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
-    global: {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+  auth: {
+    flowType: 'pkce',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+    storage: localStorage,
+  },
+  global: {
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
-    db: {
-        schema: 'public'
-    }
+  },
+  db: {
+    schema: 'public',
+  },
 });

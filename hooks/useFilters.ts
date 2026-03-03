@@ -19,7 +19,7 @@ export const useFilterOptions = (claims: Claim[]) => {
       ramos: uniqueValues(claims.map(c => c.ramo)),
       aseguradoras: uniqueValues(claims.map(c => c.aseguradora)),
       estados: uniqueValues(claims.map(c => c.estado_interno)),
-      polizas: uniqueValues(claims.map(c => c.poliza)),
+      asegurados: uniqueValues(claims.map(c => c.asegurado)),
       aliados: uniqueValues(claims.map(c => c.aliado_origen)),
       vendedores: uniqueValues(claims.map(c => c.vendedor)),
     };

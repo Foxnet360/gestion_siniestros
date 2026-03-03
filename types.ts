@@ -41,7 +41,7 @@ export enum Priority {
   BAJA = 'Baja',
 }
 
-export type Role = 'ADMIN' | 'TECNICO' | 'ALIADO';
+export type Role = 'ADMIN' | 'GERENTE' | 'TECNICO' | 'ALIADO';
 
 export interface User {
   id: string;
@@ -50,6 +50,7 @@ export interface User {
   role: Role;
   initials: string;
   aliadoId?: string; // Link to specific Ally organization
+  isActive?: boolean; // Soft delete flag
 }
 
 export interface TimelineEvent {
@@ -106,6 +107,7 @@ export interface Claim {
   vendedor: string; // Salesperson
   /** @ownership Internal */
   tecnico_asignado: string; // Technician handling the claim
+  tecnico_id?: string; // UUID reference to users table
   /** @ownership Internal */
   aliado_origen?: string; // Organization that owns/referred the policy
 
@@ -190,7 +192,7 @@ export interface FilterState {
   ramo: string[];
   aseguradora: string[];
   estado: string[];
-  poliza: string[];
+  asegurado: string[];
   aliado: string[];
   prescripcionRisk?: boolean; // Show only risk > 0
 }

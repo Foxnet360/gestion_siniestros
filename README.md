@@ -31,6 +31,84 @@ cp .env.example .env.local
 npm run dev
 ```
 
+## Configuración de Autenticación (Supabase Auth)
+
+El sistema utiliza Supabase Auth para autenticación de usuarios. Sigue estos pasos para configurar:
+
+### 1. Configurar Supabase Dashboard
+
+1. Ve a tu proyecto en [Supabase Dashboard](https://app.supabase.io)
+2. Navega a **Authentication > Providers**
+3. Habilita **Email** provider
+4. Configura:
+   - **Confirm email**: OFF (para auto-confirmar usuarios)
+   - **Secure email change**: ON
+   - **Secure password change**: ON
+
+### 2. Configurar JWT Settings
+
+1. Ve a **Project Settings > API**
+2. En **JWT Settings**:
+   - **JWT expiry**: 86400 (24 horas)
+   - **Refresh token rotation**: ON
+
+### 3. Ejecutar Migración SQL
+
+Ejecuta el script de migración en el SQL Editor de Supabase:
+
+```bash
+# Ubicación del script
+database/migrations/001_create_user_management.sql
+```
+
+Este script crea:
+
+- Tabla `users` (metadatos de usuarios)
+- Tabla `audit_logs` (registro de auditoría)
+- Columna `tecnico_id` en tabla `claims`
+- Políticas RLS para control de acceso
+- Funciones para auditoría automática
+
+### 4. Crear Primer Usuario ADMIN
+
+Ejecuta en SQL Editor:
+
+```sql
+SELECT create_user_with_auth(
+    'admin@softseguros.com',
+    'Admin123!',
+    'Administrador Principal',
+    'ADMIN',
+    'AP'
+);
+```
+
+### 5. Sistema de Roles
+
+El sistema tiene 4 roles:
+
+- **ADMIN**: Control total del sistema
+- **GERENTE**: Dashboard gerencial y reportes
+- **TECNICO**: Gestión de siniestros asignados
+- **ALIADO**: Visualización de siniestros propios
+
+Ver [ROLES.md](./ROLES.md) para documentación completa de permisos.
+
+### 6. Migración de Técnicos Existentes
+
+Si tienes técnicos en el campo `tecnico_asignado` (string), ejecuta:
+
+```bash
+# Configura SUPABASE_SERVICE_ROLE_KEY en .env
+npx ts-node scripts/migrate-tecnicos.ts
+```
+
+Este script:
+
+1. Extrae técnicos únicos del campo `tecnico_asignado`
+2. Crea usuarios en auth.users y public.users
+3. Actualiza `claims.tecnico_id` con los UUIDs generados
+
 ## Documentación del Sistema
 
 ### Modelo de Propiedad de Campos (Field Ownership)
@@ -182,6 +260,45 @@ Parseo de archivos Excel de SoftSeguros:
 - Mapeo de 24 campos desde hoja "Siniestros"
 - Parseo de hoja "Amparos" con validación
 - Conversión de tipos (fechas, moneda, booleanos)
+
+#### trackingService.ts
+
+Servicio para gestionar actualizaciones de seguimiento y bitácora:
+
+- **`formatBitacoraEntry(date, userName, status, description)`** - Formatea entrada según patrón estricto
+- **`saveTrackingUpdate(data)`** - Guarda seguimiento y crea entrada en bitácora (transacción atómica)
+- **`isValidFutureDate(date)`** - Valida que fecha no sea anterior a hoy
+- **`getAllWorkflowStates()`** - Obtiene todos los estados disponibles del workflow
+
+### Funcionalidad de Edición de Seguimiento
+
+El sistema incluye una pestaña "Editar" en el detalle de siniestros que permite:
+
+1. **Actualizar estado** del siniestro mediante dropdown
+2. **Establecer próxima fecha** de seguimiento (validación: no permite fechas pasadas)
+3. **Agregar descripción** del seguimiento (máximo 2000 caracteres)
+4. **Generar automáticamente entrada en bitácora** con formato estricto:
+   ```
+   Fecha: DD/MM/YYYY - Funcionario: [Nombre] - Seg: "[Estado]" [Descripción]
+   ```
+
+#### Transacción Atómica
+
+El guardado utiliza una función PostgreSQL (`update_tracking_with_bitacora`) que garantiza atomicidad:
+
+- Actualiza el campo `proximo_seguimiento` en la tabla `claims`
+- Inserta nueva entrada en tabla `timeline`
+- Ambas operaciones ocurren en una sola transacción (rollback automático si falla)
+
+#### Migración de Base de Datos
+
+Ver archivo: `database/migrations/001_add_tracking_functionality.sql`
+
+Incluye:
+
+- Verificación/creación de tabla `timeline`
+- Creación de función RPC `update_tracking_with_bitacora`
+- Índices para optimización de queries
 
 ## Testing
 

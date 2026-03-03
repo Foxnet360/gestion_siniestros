@@ -1,10 +1,11 @@
-import React, { memo } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import React, { memo, useState } from 'react';
+import { Search, Filter, X, SlidersHorizontal } from 'lucide-react';
 import { useClaims } from '../context/ClaimsContext';
 import { useFilterOptions } from '../hooks/useFilters';
 
 const FilterBar: React.FC = () => {
   const { filters, setFilters, claims } = useClaims();
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Opciones de filtros memoizadas
   const options = useFilterOptions(claims);
@@ -27,7 +28,7 @@ const FilterBar: React.FC = () => {
       ramo: [],
       aseguradora: [],
       estado: [],
-      poliza: [],
+      asegurado: [],
       aliado: [],
     });
   };
@@ -36,63 +37,84 @@ const FilterBar: React.FC = () => {
     filters.ramo.length > 0 ||
     filters.aseguradora.length > 0 ||
     filters.estado.length > 0 ||
-    filters.poliza.length > 0 ||
+    filters.asegurado.length > 0 ||
     filters.searchTerm;
 
   return (
-    <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 px-8 py-4 mb-6 -mx-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por Siniestro, Póliza, Placa, Asegurado..."
-            value={filters.searchTerm}
-            onChange={handleSearch}
-            className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
-          />
-        </div>
-
-        {/* Filters */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center text-slate-500 text-xs uppercase tracking-wider font-bold mr-2">
-            <Filter className="w-3 h-3 mr-1" /> Filtros:
+    <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 px-4 lg:px-8 py-4 mb-6 -mx-4 lg:-mx-8">
+      <div className="flex flex-col gap-4">
+        {/* Search and Mobile Filter Toggle */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Buscar por Siniestro, Póliza, Placa, Asegurado..."
+              value={filters.searchTerm}
+              onChange={handleSearch}
+              className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+            />
           </div>
 
-          <FilterDropdown
-            title="Número de Póliza"
-            options={options.polizas}
-            selected={filters.poliza}
-            onToggle={value => toggleFilter('poliza', value)}
-          />
-          <FilterDropdown
-            title="Ramo"
-            options={options.ramos}
-            selected={filters.ramo}
-            onToggle={value => toggleFilter('ramo', value)}
-          />
-          <FilterDropdown
-            title="Aseguradora"
-            options={options.aseguradoras}
-            selected={filters.aseguradora}
-            onToggle={value => toggleFilter('aseguradora', value)}
-          />
-          <FilterDropdown
-            title="Estado"
-            options={options.estados}
-            selected={filters.estado}
-            onToggle={value => toggleFilter('estado', value)}
-          />
+          {/* Mobile filter toggle */}
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="lg:hidden flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filtros</span>
+            {hasActiveFilters && (
+              <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                {
+                  [filters.ramo, filters.aseguradora, filters.estado, filters.asegurado].flat()
+                    .length
+                }
+              </span>
+            )}
+          </button>
+        </div>
 
-          {hasActiveFilters && (
-            <button
-              onClick={clearFilters}
-              className="ml-2 text-xs text-rose-400 hover:text-rose-300 flex items-center hover:underline"
-            >
-              <X className="w-3 h-3 mr-0.5" /> Limpiar
-            </button>
-          )}
+        {/* Filters - Desktop always visible, Mobile toggleable */}
+        <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="hidden lg:flex items-center text-slate-500 text-xs uppercase tracking-wider font-bold mr-2">
+              <Filter className="w-3 h-3 mr-1" /> Filtros:
+            </div>
+
+            <FilterDropdown
+              title="Cliente"
+              options={options.asegurados}
+              selected={filters.asegurado}
+              onToggle={value => toggleFilter('asegurado', value)}
+            />
+            <FilterDropdown
+              title="Ramo"
+              options={options.ramos}
+              selected={filters.ramo}
+              onToggle={value => toggleFilter('ramo', value)}
+            />
+            <FilterDropdown
+              title="Aseguradora"
+              options={options.aseguradoras}
+              selected={filters.aseguradora}
+              onToggle={value => toggleFilter('aseguradora', value)}
+            />
+            <FilterDropdown
+              title="Estado"
+              options={options.estados}
+              selected={filters.estado}
+              onToggle={value => toggleFilter('estado', value)}
+            />
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="ml-2 text-xs text-rose-400 hover:text-rose-300 flex items-center hover:underline"
+              >
+                <X className="w-3 h-3 mr-0.5" /> Limpiar
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
