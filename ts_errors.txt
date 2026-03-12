@@ -1,0 +1,115 @@
+﻿src/__tests__/e2e/alerts-display-filtering.test.tsx(5,17): error TS2305: Module '"../../types"' has no exported member 'AlertLevel'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(128,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(129,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(130,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(141,27): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(152,26): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(164,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(165,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(166,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(178,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(179,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(180,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(187,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(188,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(189,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(215,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/alerts-display-filtering.test.tsx(225,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(52,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(55,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(64,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(73,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(74,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(84,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(105,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(130,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(147,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(160,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(161,63): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(169,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(172,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(179,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(182,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(195,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(198,69): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(212,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(220,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(228,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(238,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(246,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(253,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(257,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/amparos-dropdown.test.tsx(258,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(4,10): error TS2614: Module '"../../components/Dashboard"' has no exported member 'Dashboard'. Did you mean to use 'import Dashboard from "../../components/Dashboard"' instead?
+src/__tests__/e2e/dashboard-filters.test.tsx(27,19): error TS2305: Module '"../../hooks/useKPIs"' has no exported member 'useLeadTime'.
+src/__tests__/e2e/dashboard-filters.test.tsx(27,32): error TS2305: Module '"../../hooks/useKPIs"' has no exported member 'useTasas'.
+src/__tests__/e2e/dashboard-filters.test.tsx(27,42): error TS2305: Module '"../../hooks/useKPIs"' has no exported member 'useBacklog'.
+src/__tests__/e2e/dashboard-filters.test.tsx(82,33): error TS2345: Argument of type '{ overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { average: number; percentiles: { ...; }; }; ... 4 more ...; refetch: Mock<...>; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { average: number; percentiles: { ...; }; }; ... 4 more ...; refetch: Mock<...>; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(107,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(108,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(109,63): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(116,33): error TS2345: Argument of type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(147,33): error TS2345: Argument of type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(179,33): error TS2345: Argument of type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ refetch: Mock<Procedure>; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; ... 4 more ...; error: any; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(199,28): error TS2339: Property 'toHaveValue' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(204,33): error TS2345: Argument of type '{ loading: true; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { ...; }; tasas: { ...; }; backlog: { ...; }; error: any; refetch: Mock<...>; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ loading: true; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { ...; }; tasas: { ...; }; backlog: { ...; }; error: any; refetch: Mock<...>; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(217,33): error TS2345: Argument of type '{ error: string; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { ...; }; tasas: { ...; }; backlog: { ...; }; loading: boolean; refetch: Mock<...>; }' is not assignable to parameter of type 'UseKPIsReturn'.
+  Type '{ error: string; overview: { leadTimeAvg: number; tasaDesistimiento: number; tasaObjetados: number; tasaPrescritos: number; porcentajeCerradosPlazo: number; backlogActivos: number; }; leadTime: { ...; }; tasas: { ...; }; backlog: { ...; }; loading: boolean; refetch: Mock<...>; }' is missing the following properties from type 'UseKPIsReturn': followUpMetrics, frecuencia, severidad
+src/__tests__/e2e/dashboard-filters.test.tsx(224,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(225,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/dashboard-filters.test.tsx(244,26): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/edit-tracking-auto-calculation.test.tsx(108,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/edit-tracking-auto-calculation.test.tsx(160,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/edit-tracking-auto-calculation.test.tsx(211,29): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/__tests__/e2e/edit-tracking-auto-calculation.test.tsx(225,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(10,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(16,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(22,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(28,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(34,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(40,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(53,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(75,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(81,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(88,21): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(96,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<SVGSVGElement>'.
+src/components/__tests__/AlertBadge.test.tsx(129,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(146,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(163,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(180,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/AlertBadge.test.tsx(181,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(104,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(113,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(121,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(148,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(159,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(168,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(176,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(184,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(192,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(231,75): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/__tests__/EditTrackingTab.test.tsx(242,75): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/BusinessRulesConfig.tsx(3,25): error TS2307: Cannot find module '../hooks/useAuth' or its corresponding type declarations.
+src/components/index.ts(3,3): error TS2614: Module '"./Dashboard"' has no exported member 'Dashboard'. Did you mean to use 'import Dashboard from "./Dashboard"' instead?
+src/components/index.ts(4,3): error TS2614: Module '"./Dashboard"' has no exported member 'DashboardWithFeatureFlag'. Did you mean to use 'import DashboardWithFeatureFlag from "./Dashboard"' instead?
+src/components/index.ts(5,3): error TS2614: Module '"./Dashboard"' has no exported member 'KPICard'. Did you mean to use 'import KPICard from "./Dashboard"' instead?
+src/components/index.ts(6,3): error TS2614: Module '"./Dashboard"' has no exported member 'FilterSidebar'. Did you mean to use 'import FilterSidebar from "./Dashboard"' instead?
+src/components/index.ts(7,3): error TS2614: Module '"./Dashboard"' has no exported member 'LeadTimeChart'. Did you mean to use 'import LeadTimeChart from "./Dashboard"' instead?
+src/components/index.ts(8,3): error TS2614: Module '"./Dashboard"' has no exported member 'TasasCharts'. Did you mean to use 'import TasasCharts from "./Dashboard"' instead?
+src/components/index.ts(9,3): error TS2614: Module '"./Dashboard"' has no exported member 'ExportButton'. Did you mean to use 'import ExportButton from "./Dashboard"' instead?
+src/components/Reports/common/ReportFilters.tsx(28,12): error TS2678: Type '"this-month"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(31,12): error TS2678: Type '"last-month"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(35,12): error TS2678: Type '"this-quarter"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(39,12): error TS2678: Type '"last-quarter"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(46,12): error TS2678: Type '"this-year"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(49,12): error TS2678: Type '"last-year"' is not comparable to type 'DateRangePreset'.
+src/components/Reports/common/ReportFilters.tsx(53,12): error TS2678: Type '"custom"' is not comparable to type 'DateRangePreset'.
+src/hooks/reports/usePrescripcionRiesgo.ts(21,11): error TS2322: Type 'string' is not assignable to type 'RiesgoPrescripcion'.
+src/hooks/reports/usePrescripcionRiesgo.ts(23,11): error TS2322: Type 'string' is not assignable to type 'RiesgoPrescripcion'.
+src/hooks/reports/usePrescripcionRiesgo.ts(25,11): error TS2322: Type 'string' is not assignable to type 'RiesgoPrescripcion'.
+src/hooks/reports/usePrescripcionRiesgo.ts(27,11): error TS2322: Type 'string' is not assignable to type 'RiesgoPrescripcion'.

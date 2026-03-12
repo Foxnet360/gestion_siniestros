@@ -1,0 +1,55 @@
+﻿{
+  "changeName": "update-estado-interno-ingestion",
+  "changeDir": "D:\\workspace\\siniestros\\gestion_siniestros\\openspec\\changes\\update-estado-interno-ingestion",
+  "schemaName": "spec-driven",
+  "contextFiles": {
+    "proposal": "D:\\workspace\\siniestros\\gestion_siniestros\\openspec\\changes\\update-estado-interno-ingestion\\proposal.md",
+    "specs": "D:\\workspace\\siniestros\\gestion_siniestros\\openspec\\changes\\update-estado-interno-ingestion\\specs\\**\\*.md",
+    "design": "D:\\workspace\\siniestros\\gestion_siniestros\\openspec\\changes\\update-estado-interno-ingestion\\design.md",
+    "tasks": "D:\\workspace\\siniestros\\gestion_siniestros\\openspec\\changes\\update-estado-interno-ingestion\\tasks.md"
+  },
+  "progress": {
+    "total": 7,
+    "complete": 0,
+    "remaining": 7
+  },
+  "tasks": [
+    {
+      "id": "1",
+      "description": "1.1 Create or locate utility function to normalize `estado_softseguros` (split by '-', take last, trim).",
+      "done": false
+    },
+    {
+      "id": "2",
+      "description": "2.1 Locate the claim mapping/ingestion logic (e.g., in `services/` or `scripts/`).",
+      "done": false
+    },
+    {
+      "id": "3",
+      "description": "2.2 Update the mapping for new claims to use the normalized `estado_softseguros` value for `estado_interno`.",
+      "done": false
+    },
+    {
+      "id": "4",
+      "description": "2.3 Update the change detection logic for existing claims to update `estado_interno` using the normalized value when `estado_softseguros` changes.",
+      "done": false
+    },
+    {
+      "id": "5",
+      "description": "3.1 Test ingestion with a mock row where `estado_softseguros` contains multiple states separated by hyphens.",
+      "done": false
+    },
+    {
+      "id": "6",
+      "description": "3.2 Verify that `estado_interno` is updated correctly for both new and existing claims.",
+      "done": false
+    },
+    {
+      "id": "7",
+      "description": "3.3 Verify that `estado_softseguros` remains stored as the original string.",
+      "done": false
+    }
+  ],
+  "state": "ready",
+  "instruction": "Read context files, work through pending tasks, mark complete as you go.\nPause if you hit blockers or need clarification."
+}

@@ -23,10 +23,10 @@ The system must classify all claim fields into three ownership categories that d
 
 #### Scenario: Internal Fields Never Modified by Ingestion
 - **WHEN** Excel data is ingested
-- **THEN** the following 9 fields must NEVER be modified:
+- **THEN** the following 8 fields must NEVER be modified:
   - `responsable`, `fecha_ultimo_seguimiento`, `prescripcion_ordinaria`
   - `prescripcion_extraordinaria`, `estado_ultima_gestion`, `tecnico`
-  - `proximo_seguimiento`, `estado_interno`, `prioridad`
+  - `proximo_seguimiento`, `prioridad`
 
 #### Scenario: Hybrid Fields with Special Logic
 - **WHEN** Excel data contains "Gestión" sheet data
@@ -39,7 +39,8 @@ The system must only update fields that have actually changed, preserving databa
 - **WHEN** an Excel row has an `IDENTIFICADOR` not found in the database
 - **THEN** a new claim must be created with:
   - All SoftSeguros fields mapped from Excel
-  - Internal fields initialized to defaults (`responsable: 'Sin Asignar'`, `estado_interno: 'AVISO SINIESTRO'`, `prioridad: 'Media'`)
+  - Internal fields initialized to defaults (`responsable: 'Sin Asignar'`, `prioridad: 'Media'`)
+  - `estado_interno` assigned the normalized value from `estado_softseguros`
   - `prescripcion_ordinaria` calculated as `fecha_siniestro + 2 years`
   - `prescripcion_extraordinaria` calculated as `fecha_siniestro + 5 years`
   - Initial `state_history` entry created
@@ -55,8 +56,19 @@ The system must only update fields that have actually changed, preserving databa
 - **WHEN** an Excel row matches an existing claim by `IDENTIFICADOR`
 - **AND** one or more SoftSeguros-owned fields have different values
 - **THEN** only the changed fields must be updated
+- **AND** `estado_interno` must be updated with the normalized value from `estado_softseguros` if the state changed
 - **AND** `updated_at` timestamp must be set to current time
-- **AND** all internal fields must remain unchanged
+- **AND** all other internal fields must remain unchanged
+
+### Requirement: Estado Interno Normalization from SoftSeguros State
+During ingestion, the system must extract the most recent state from the `estado_softseguros` field and map it to `estado_interno`.
+
+#### Scenario: Extracting the last state from a combined state string
+- **WHEN** `estado_softseguros` contains one or more states separated by hyphens ("-")
+- **THEN** the system must split the string by the hyphen delimiter
+- **AND** extract the last element of the resulting array
+- **AND** apply trim to remove leading/trailing whitespace
+- **AND** assign this normalized value to the `estado_interno` field of the claim
 
 ### Requirement: Automatic State Change Handling
 When the `estado_softseguros` field changes, the system must automatically manage state history and timeline.

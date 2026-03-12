@@ -1,0 +1,95 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { Check, Menu, X, ShieldAlert } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { supabase } from './lib/supabase';
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
+import ClaimsTable from './components/ClaimsTable';
+import ClaimDetail from './components/ClaimDetail';
+import Ingest from './components/Ingest';
+import Login from './components/Login';
+import PrescriptionRiskPage from './components/PrescriptionRiskPage';
+import ReportsPage from './components/Reports/ReportsPage';
+import UserAdmin from './components/UserAdmin';
+import UserProfile from './components/UserProfile';
+import AuditLog from './components/AuditLog';
+import ManagerDashboard from './components/manager/ManagerDashboard';
+import AllyPortal from './components/AllyPortal';
+import { Dashboard as SlaDashboard } from './components/Dashboard/SlaDashboard';
+import { DashboardEficienciaEtapas } from './components/Dashboard/DashboardEficienciaEtapas'; // NUEVO IMPORT
+import { ErrorToast } from './components/common/ErrorToast';
+import { ThemeToggle } from './components/common/ThemeToggle';
+import { Claim } from './types';
+import { ClaimsProvider, useClaims } from './context/ClaimsContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import {
+  canManageUsers,
+  canViewAuditLog,
+  canViewManagerDashboard,
+  canAccessAllyPortal,
+} from './utils/roleUtils';
+
+// ... resto del código sin cambios hasta renderContent() ...
+
+const renderContent = () => {
+  // Verificar permisos para vistas protegidas
+  if (currentView === 'user-admin' && !canManageUsers(currentUser.role)) {
+    return (
+      <div className="text-center p-8 text-rose-600">
+        No tienes permisos para acceder a esta sección
+      </div>
+    );
+  }
+  // ... otros permisos ...
+
+  switch (currentView) {
+    case 'dashboard':
+      return (
+        <Dashboard
+          claims={filteredClaims}
+          onSelectClaim={setSelectedClaim}
+          onChangeView={setCurrentView}
+        />
+      );
+    case 'list':
+      return (
+        <ClaimsTable claims={filteredClaims} onSelectClaim={setSelectedClaim} users={users} />
+      );
+    case 'ingest':
+      return <Ingest />;
+    case 'prescription-risk':
+      return (
+        <PrescriptionRiskPage
+          claims={filteredClaims}
+          onSelectClaim={setSelectedClaim}
+          onBack={() => setCurrentView('dashboard')}
+        />
+      );
+    case 'reports':
+      return <ReportsPage currentUser={currentUser} onSelectClaim={setSelectedClaim} />;
+    case 'user-admin':
+      return <UserAdmin currentUser={currentUser} />;
+    case 'user-profile':
+      return <UserProfile />;
+    case 'audit-log':
+      return <AuditLog />;
+    case 'manager-dashboard':
+      return <ManagerDashboard />;
+    case 'ally-portal':
+      return <AllyPortal />;
+    case 'sla-dashboard':
+      return <SlaDashboard />;
+    case 'eficiencia-etapas': // NUEVO CASE
+      return <DashboardEficienciaEtapas />;
+    default:
+      return (
+        <div className="flex flex-col items-center justify-center h-[60vh] text-slate-500">
+          <p>Módulo en construcción: {currentView}</p>
+        </div>
+      );
+  }
+};
+
+// ... resto del código ...
